@@ -17,7 +17,7 @@ import java.util.Date;
  * @author istovatis
  * 
  */
-public class UserEdges {
+public class UserEdges implements HasParser{
 	protected int transactionKey;
 	private int userFromKey;
 	private int userKeyTo;
@@ -35,24 +35,32 @@ public class UserEdges {
 			BufferedReader br = new BufferedReader(new InputStreamReader(
 					new DataInputStream(new FileInputStream(HasParser.path
 							+ file))));
+			String insertTableSQL = "INSERT INTO user_edges"
+					+ "(transaction_key, user_from_key, user_key_to, date, value) VALUES"
+					+ "(?,?,?,?,?)";
+			PreparedStatement preparedStatement = connection.prepareStatement(insertTableSQL);
 			String strLine;
 			int rows = 0;
 			while ((strLine = br.readLine()) != null) {
 				String[] tags = strLine.split(",");	
-				String insertTableSQL = "INSERT INTO user_edges"
-						+ "(transaction_key, user_from_key, user_key_to, date, value) VALUES"
-						+ "(?,?,?,?,?)";
-				PreparedStatement preparedStatement = connection.prepareStatement(insertTableSQL);
 				preparedStatement.setInt(1, Integer.valueOf(tags[0]));
 				preparedStatement.setInt(2, Integer.valueOf(tags[1]));
 				preparedStatement.setInt(3, Integer.valueOf(tags[2]));
 				preparedStatement.setTimestamp(4,getCurrentTimeStamp(returnDate(tags[3])));
 				preparedStatement.setDouble(5, Double.valueOf(tags[4]));
+				preparedStatement.addBatch();
 				// execute insert SQL stetement
-				preparedStatement .executeUpdate();
+				//preparedStatement .executeUpdate();
+				if (rows % batchSize == 0) {
+					System.out.println("Try to Insert at "+new Date());
+					preparedStatement.executeBatch();
+					System.out.println(rows+" Inserted at "+new Date());
+					System.out.println("--------------------------------------------");
+					}
 				rows++;
 			}
-			System.out.println(rows+" Rows added");
+			preparedStatement.executeBatch();
+			System.out.println(rows+" Records added");
 		} catch (Exception e) {
 			e.printStackTrace();
 			System.out.println(e.getMessage());
