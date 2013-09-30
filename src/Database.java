@@ -4,9 +4,6 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Properties;
 
-import com.mysql.jdbc.PreparedStatement;
-
-
 public class Database {
 	private final static String name = "bitcoin";
 	private final static String user = "postgres";
@@ -15,7 +12,7 @@ public class Database {
 	
 	Connection connection;
 	Statement statement;	// statement for insert query
-	PreparedStatement preparedStatement;	// statement for update query
+	//PreparedStatement preparedStatement;	// statement for update query
 	
 	String query;	
 	

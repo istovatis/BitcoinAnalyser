@@ -5,10 +5,20 @@ import java.io.InputStreamReader;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.Statement;
+import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+
+import org.apache.commons.collections.MultiHashMap;
+import org.apache.commons.collections.MultiMap;
 
 
 /**
@@ -26,9 +36,13 @@ public class UserEdges implements HasParser{
 	private float value;
 
 	private final String file = "user_edges.txt";
+	 MultiMap mhm = new MultiHashMap();
 	SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd-HH:mm:ss");
 	SimpleDateFormat TIME_FORMAT = new SimpleDateFormat("hh:mm:ss");
-
+	HashSet<ArrayList<Number>> uniqueKey = new HashSet<ArrayList<Number>>();
+	//MultiMap uniqueKey = new MultiHashMap();
+	
+	
 	public void readDataFile() {
 		try {
 			Connection connection = Database.get().connectPostgre();
@@ -43,17 +57,35 @@ public class UserEdges implements HasParser{
 			int rows = 0;
 			while ((strLine = br.readLine()) != null) {
 				String[] tags = strLine.split(",");	
+				int key = Integer.valueOf(tags[0]);
+				int from = Integer.valueOf(tags[1]);
+				int to = Integer.valueOf(tags[2]);
+				double value = Double.valueOf(tags[4]);
+				Timestamp time = getCurrentTimeStamp(returnDate(tags[3]));
 				preparedStatement.setInt(1, Integer.valueOf(tags[0]));
 				preparedStatement.setInt(2, Integer.valueOf(tags[1]));
 				preparedStatement.setInt(3, Integer.valueOf(tags[2]));
 				preparedStatement.setTimestamp(4,getCurrentTimeStamp(returnDate(tags[3])));
 				preparedStatement.setDouble(5, Double.valueOf(tags[4]));
+				//int []tmp = {key, from, to};
+				ArrayList<Number> tmp2 = new ArrayList<Number>();
+//				tmp2.add(key);
+//				tmp2.add(from);
+//				tmp2.add(to);
+//				tmp2.add(value);
+//				tmp2.add(time.getTime());
+//				if(!uniqueKey.add(tmp2)){
+//					System.out.println("Double entry!"+key+":"+from+":"+to+":"+value+":"+time);
+//				}
+				//tmp2.clear();
+				//uniqueKey.add(Arrays.hashCode(tmp));
 				preparedStatement.addBatch();
 				// execute insert SQL stetement
-				//preparedStatement .executeUpdate();
-				if (rows % batchSize == 0) {
+				//preparedStatement.executeUpdate();
+				if (rows % batchSize == 0){ 
 					System.out.println("Try to Insert at "+new Date());
 					preparedStatement.executeBatch();
+					System.out.println((rows+1)-uniqueKey.size()+" Not unique keys");
 					System.out.println(rows+" Inserted at "+new Date());
 					System.out.println("--------------------------------------------");
 					}
@@ -61,6 +93,7 @@ public class UserEdges implements HasParser{
 			}
 			preparedStatement.executeBatch();
 			System.out.println(rows+" Records added");
+			System.out.println(rows-uniqueKey.size()+" Not unique keys");
 		} catch (Exception e) {
 			e.printStackTrace();
 			System.out.println(e.getMessage());
@@ -113,5 +146,11 @@ public class UserEdges implements HasParser{
 	
 	private static java.sql.Timestamp getCurrentTimeStamp(Date date) {
 		return new java.sql.Timestamp(date.getTime());
+	}
+
+	@Override
+	public void emptyTable() {
+		// TODO Auto-generated method stub
+		
 	}
 }
