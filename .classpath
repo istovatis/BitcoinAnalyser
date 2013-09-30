@@ -2,7 +2,6 @@
 <classpath>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/java-7-openjdk-amd64"/>
-	<classpathentry kind="lib" path="/home/soloikos/workspace/libraries/postgresql-9.2-1002.jdbc3.jar"/>
 	<classpathentry kind="lib" path="/home/soloikos/workspace/libraries/commons-collections-3.2.1.jar"/>
 	<classpathentry kind="lib" path="/home/soloikos/workspace/libraries/rooster/lib/commons-codec-1.7.jar"/>
 	<classpathentry kind="lib" path="/home/soloikos/workspace/libraries/rooster/lib/commons-collections-3.2.1.jar"/>
@@ -28,5 +27,6 @@
 	<classpathentry kind="lib" path="/home/soloikos/workspace/libraries/rooster/lib/xml-apis-1.4.01.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
 	<classpathentry kind="lib" path="/home/soloikos/workspace/libraries/guava-15.0.jar"/>
+	<classpathentry kind="lib" path="/home/soloikos/workspace/libraries/postgresql-9.2-1003.jdbc4.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
