@@ -22,7 +22,7 @@ import com.google.common.collect.Multimap;
 /**
  * This is a blockChain.info parser. The aim of this parser is to get address,
  * tag and link of every tagged public key and finally the verification status
- * of this address.
+ * of this address. This class makes use of htmlUnit library.
  * 
  * @author istovatis
  * 
@@ -32,15 +32,15 @@ public class BlockchainParser {
 	private static HashSet<BlockchainParser> tagList = new HashSet<BlockchainParser>();
 	Multimap<String, String> mostTaged = ArrayListMultimap.create();
 
-	private final String blockChain = "https://blockchain.info/tags";
-	private String address;
+	private final String blockChain = "https://blockchain.info/tags";	// the webpage
+	private String address;		
 	private String tag;
 	private String link;
 	private boolean verified;
 
-	private int numVerified;
-	private int numNotVerified;
-
+	private int numVerified;	//Number of verified tags
+	private int numNotVerified;		//Number of not verified tags
+	
 	@Test
 	public void homePage() throws Exception {
 		final WebClient webClient = new WebClient();
