@@ -11,32 +11,35 @@ import java.util.Date;
 import java.util.HashSet;
 
 
-public class PublicKeyList extends Key implements HasParser{
+public class PublicKeyList extends Key{
 	// Identifier hash associated with nodes
 	HashSet<String> uniqueKeys = new HashSet<String>();
  	private final String file = "pubkey_list.txt";
 	private String textKey;
-	private String table = "pubkey_list";
 	private Connection connection;
+	
+	public PublicKeyList(){
+		table = "pubkey_list";
+	}
 	
 	public void readDataFile() {
 		try {
 			connection = Database.get().connectPostgre();
-			if(Config.DBIntegration){
+			if(Config.isDBIntegration()){
 				emptyTable();
 			}
-			BufferedReader br = new BufferedReader(new InputStreamReader(
+		    br = new BufferedReader(new InputStreamReader(
 					new DataInputStream(new FileInputStream(HasParser.path
 							+ file))));
 			String insertTableSQL = "INSERT INTO "+table
 					+ "(id, text_key) VALUES" + "(?,?)";
-			PreparedStatement preparedStatement = connection.prepareStatement(insertTableSQL);
+			preparedStatement = connection.prepareStatement(insertTableSQL);
 			String strLine;
 			int rows = 0;
 			while ((strLine = br.readLine()) != null) {
 				textKey = String.valueOf(strLine);
 				
-				if(Config.DBIntegration){
+				if(Config.isDBIntegration()){
 					preparedStatement.setInt(1, rows+1);
 					preparedStatement.setString(2, String.valueOf(strLine));
 					preparedStatement.addBatch();
@@ -44,17 +47,14 @@ public class PublicKeyList extends Key implements HasParser{
 				if(!uniqueKeys.add(textKey)){
 					System.out.println("Double entry!"+(rows+1)+":"+textKey);
 				}
-				if (rows % batchSize == 0){ 
-					System.out.println("Try to Insert at "+new Date());
-					if(Config.DBIntegration){
-						preparedStatement.executeBatch();
+				if (rows % batchSize == 0) {
+					if(Config.isDBIntegration()){
+						addToDatabase(rows, preparedStatement);
 					}
-					System.out.println("Inserted "+rows+ "at "+new Date());
-					System.out.println("--------------------------------------------");
-					}
+				}
 				rows++;
 			}
-			if(Config.DBIntegration){
+			if(Config.isDBIntegration()){
 				preparedStatement.executeBatch();
 			}
 			System.out.println(rows+" Records added");
@@ -66,19 +66,4 @@ public class PublicKeyList extends Key implements HasParser{
 		}
 	}
 
-	@Override
-	public void emptyTable() {
-		String insertTableSQL = "DELETE FROM "+table;
-		try {
-			PreparedStatement preparedStatement = connection
-					.prepareStatement(insertTableSQL);
-			preparedStatement.addBatch();
-			preparedStatement.executeBatch();
-			System.out.println("Deleted all data from "+table+ " at "+new Date());
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-	}
 }

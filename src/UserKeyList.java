@@ -10,29 +10,29 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
 
-public class UserKeyList implements HasParser {
+public class UserKeyList extends HasParser {
 	// public keys that belong to the same user
-	private String table = "userkey_list";
 	private Integer[] keys;
 	//private ArrayList<Integer> keyList;
 	private HashSet<Integer[]> uniqueKeys = new HashSet<Integer[]>(); 
-	Connection connection; 
 	
 	private final String file = "userkey_list.txt";
-
-	@Override
+	
+	public UserKeyList(){
+		table = "userkey_list";
+	}
 	public void readDataFile() {
 		try {
 			connection = Database.get().connectPostgre();
-			if(Config.DBIntegration){
+			if(Config.isDBIntegration()){
 				emptyTable();
 			}
-			BufferedReader br = new BufferedReader(new InputStreamReader(
+			br = new BufferedReader(new InputStreamReader(
 					new DataInputStream(new FileInputStream(HasParser.path
 							+ file))));
 			String insertTableSQL = "INSERT INTO " + table
 					+ "(key_number, public_keys) VALUES" + "(?,?)";
-			PreparedStatement preparedStatement = connection
+			preparedStatement = connection
 					.prepareStatement(insertTableSQL);
 			String strLine;
 			int rows = 0;
@@ -44,7 +44,7 @@ public class UserKeyList implements HasParser {
 				}
 								
 				Array keys = connection.createArrayOf("int4", key);
-				if(Config.DBIntegration){
+				if(Config.isDBIntegration()){
 					preparedStatement.setInt(1, rows + 1);
 					preparedStatement.setArray(2, keys);
 					preparedStatement.addBatch();
@@ -54,18 +54,13 @@ public class UserKeyList implements HasParser {
 							+ key.toString());
 				}
 				if (rows % batchSize == 0) {
-					System.out.println("Try to Insert at " + new Date());
-					if(Config.DBIntegration){
-						preparedStatement.executeBatch();
+					if(Config.isDBIntegration()){
+						addToDatabase(rows, preparedStatement);
 					}
-					System.out
-							.println("Inserted " + rows + " at " + new Date());
-					System.out
-							.println("--------------------------------------------");
 				}
 				rows++;
 			}
-			if(Config.DBIntegration){
+			if(Config.isDBIntegration()){
 				preparedStatement.executeBatch();
 			}
 			System.out.println(rows + " Records added");
@@ -74,21 +69,6 @@ public class UserKeyList implements HasParser {
 			e.printStackTrace();
 			System.out.println(e.getMessage());
 			// System.err.println("Error: " + e.getMessage());
-		}
-	}
-
-	public void emptyTable() {
-		String insertTableSQL = "DELETE FROM " + table;
-		try {
-			PreparedStatement preparedStatement = connection
-					.prepareStatement(insertTableSQL);
-			preparedStatement.addBatch();
-			preparedStatement.executeBatch();
-			System.out.println("Deleted all data from " + table + " at "
-					+ new Date());
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		}
 	}
 

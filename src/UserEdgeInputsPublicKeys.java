@@ -16,25 +16,29 @@ import java.util.Date;
  * @author istovatis
  *
  */
-public class UserEdgeInputsPublicKeys extends UserEdges implements User, HasParser{
+public class UserEdgeInputsPublicKeys extends HasParser implements User{
 	// Transaction keys used as input in "this" transaction
 	private int[] keys;
 	private int transaction_key;
-	private String table = "user_edge_inputs_public_keys";
 	private final String file = "user_edge_inputs_public_keys.txt";
 	private Connection connection;
 	
-	@Override
+	public UserEdgeInputsPublicKeys(){
+		table = "user_edge_inputs_public_keys";
+	}
+	
 	public void readDataFile() {
 		try {
 			connection = Database.get().connectPostgre();
-			emptyTable();
-			BufferedReader br = new BufferedReader(new InputStreamReader(
+			if(Config.isDBIntegration()){
+				emptyTable();
+			}
+			br = new BufferedReader(new InputStreamReader(
 					new DataInputStream(new FileInputStream(HasParser.path
 							+ file))));
 			String insertTableSQL = "INSERT INTO " + table
 					+ "(transaction_key, public_keys) VALUES" + "(?,?)";
-			PreparedStatement preparedStatement = connection
+			preparedStatement = connection
 					.prepareStatement(insertTableSQL);
 			String strLine;
 			int rows = 0;
@@ -62,12 +66,9 @@ public class UserEdgeInputsPublicKeys extends UserEdges implements User, HasPars
 				// execute insert SQL stetement
 				// preparedStatement .executeUpdate();
 				if (rows % batchSize == 0) {
-					System.out.println("Try to Insert at " + new Date());
-					preparedStatement.executeBatch();
-					System.out
-							.println("Inserted " + rows + " at " + new Date());
-					System.out
-							.println("--------------------------------------------");
+					if(Config.isDBIntegration()){
+						addToDatabase(rows, preparedStatement);
+					}
 				}
 				rows++;
 			}
@@ -80,21 +81,4 @@ public class UserEdgeInputsPublicKeys extends UserEdges implements User, HasPars
 			// System.err.println("Error: " + e.getMessage());
 		}
 	}
-
-	public void emptyTable() {
-		String insertTableSQL = "DELETE FROM " + table;
-		try {
-			PreparedStatement preparedStatement = connection
-					.prepareStatement(insertTableSQL);
-			preparedStatement.addBatch();
-			preparedStatement.executeBatch();
-			System.out.println("Deleted all data from " + table + " at "
-					+ new Date());
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-
-	
 }

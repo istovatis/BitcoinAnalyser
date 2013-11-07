@@ -5,19 +5,18 @@ import java.io.InputStreamReader;
 import java.sql.Statement;
 import java.sql.Connection;
 
-public class UserPubKey extends UserEdges implements User, HasParser {
+public class UserPubKey  extends HasParser implements User {
 	// Public keys used for input in "this" transaction
 	private int[] keys;
 	private final String file = "user_edge_input_public_keys.txt";
 	private int rows;
 	private int maxKeys;
 
-	@Override
 	public void readDataFile() {
 		try {
-			Connection connection = Database.get().connectPostgre();
+			connection = Database.get().connectPostgre();
 			Statement st =connection.createStatement();
-			BufferedReader br = new BufferedReader(new InputStreamReader(
+			br = new BufferedReader(new InputStreamReader(
 					new DataInputStream(new FileInputStream(HasParser.path+file))));
 			String strLine;
 

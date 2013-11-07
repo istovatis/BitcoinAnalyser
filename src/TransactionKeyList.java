@@ -8,24 +8,29 @@ import java.sql.SQLException;
 import java.util.Date;
 import java.util.HashSet;
 
-public class TransactionKeyList extends Key implements HasParser {
+public class TransactionKeyList extends Key {
 	// Identifier hash associated with nodes
 	HashSet<String> uniqueKeys = new HashSet<String>();
 	private String textKey;
-	private String table = "transactionkey_list";
 	private Connection connection;
 	private final String file = "transactionkey_list.txt";
-
+	
+	public TransactionKeyList(){
+		table = "transactionkey_list";
+	}
+	
 	public void readDataFile() {
 		try {
 			connection = Database.get().connectPostgre();
-			emptyTable();
-			BufferedReader br = new BufferedReader(new InputStreamReader(
+			if(Config.isDBIntegration()){
+				emptyTable();
+			}
+			br = new BufferedReader(new InputStreamReader(
 					new DataInputStream(new FileInputStream(HasParser.path
 							+ file))));
 			String insertTableSQL = "INSERT INTO " + table
 					+ "(id, transaction_key_string) VALUES" + "(?,?)";
-			PreparedStatement preparedStatement = connection
+			preparedStatement = connection
 					.prepareStatement(insertTableSQL);
 			String strLine;
 			int rows = 0;
@@ -44,11 +49,9 @@ public class TransactionKeyList extends Key implements HasParser {
 				// execute insert SQL stetement
 				// preparedStatement .executeUpdate();
 				if (rows % batchSize == 0) {
-					System.out.println("Try to Insert at " + new Date());
-					preparedStatement.executeBatch();
-					System.out.println("Inserted " + rows + " at " + new Date());
-					System.out
-							.println("--------------------------------------------");
+					if(Config.isDBIntegration()){
+						addToDatabase(rows, preparedStatement);
+					}
 				}
 				rows++;
 			}
@@ -62,20 +65,4 @@ public class TransactionKeyList extends Key implements HasParser {
 		}
 	}
 
-	@Override
-	public void emptyTable() {
-		String insertTableSQL = "DELETE FROM " + table;
-		try {
-			PreparedStatement preparedStatement = connection
-					.prepareStatement(insertTableSQL);
-			preparedStatement.addBatch();
-			preparedStatement.executeBatch();
-			System.out.println("Deleted all data from " + table + " at "
-					+ new Date());
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-	}
 }

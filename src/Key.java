@@ -13,7 +13,16 @@ import java.util.ArrayList;
  * @author istovatis
  * 
  */
-public class Key {
+public abstract class Key extends HasParser{
 	String key;
 	ArrayList<Key> keyList;
+	@Override
+	public void readDataFile() {
+		// TODO Auto-generated method stub
+		
+	}
+	@Override
+	public int emptyTable() {
+		return super.emptyTable();
+	}
 }
