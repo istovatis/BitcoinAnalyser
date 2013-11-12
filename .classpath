@@ -28,5 +28,6 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
 	<classpathentry kind="lib" path="/home/soloikos/workspace/libraries/guava-15.0.jar"/>
 	<classpathentry kind="lib" path="/home/soloikos/workspace/libraries/postgresql-9.2-1003.jdbc4.jar"/>
+	<classpathentry kind="lib" path="/home/soloikos/workspace/libraries/argo-3.7.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

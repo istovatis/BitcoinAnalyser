@@ -5,6 +5,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Map;
+import java.util.Random;
 
 import org.apache.commons.io.IOUtils;
 
@@ -20,7 +21,9 @@ public class Scraper {
 	private String response;
 	private static final JdomParser jsonParser = new JdomParser();
 	private JsonRootNode json;
-	private static Map<JsonStringNode, JsonNode> map;		// Map created by parsing the json
+	static Random generator;
+	private static Map<JsonStringNode, JsonNode> map; // Map created by parsing
+														// the json
 
 	public static Map<JsonStringNode, JsonNode> getMap() {
 		return map;
@@ -47,20 +50,26 @@ public class Scraper {
 			connection.setDoInput(true);
 			connection.setDoOutput(true);
 			connection.connect();
-
-			if (connection.getResponseCode() == 200)
-				System.out.println("Connection established");
+			
+			if (connection.getResponseCode() == 200){
+				//System.out.println("Connection established");
+			}
 			// System.out.println(IOUtils.toString(
 			// connection.getInputStream(), "UTF-8"));
 			else if (connection.getResponseCode() == 500
 					&& (connection.getContentType() == null || connection
-							.getContentType().equals("text/plain")))
-				throw new Exception(
-						"Error From Server: "
+							.getContentType().equals("text/plain"))) {
+				System.err
+						.println("Error From Server: "
 								+ IOUtils.toString(connection.getErrorStream(),
 										"UTF-8"));
-			else
-				throw new Exception("Unknown response from server");
+				response = "error";
+				return response;
+			} else {
+				System.err.println("Unknown response from server");
+				response = "error";
+				return response;
+			}
 
 			// Get Response
 			InputStream is = connection.getInputStream();
@@ -78,7 +87,7 @@ public class Scraper {
 		} catch (Exception e) {
 
 			e.printStackTrace();
-			return null;
+			return "again";
 
 		} finally {
 
@@ -90,11 +99,25 @@ public class Scraper {
 
 	public void parseJson() {
 		try {
-			json = jsonParser.parse(response);
-			map = json.getFields();
+			if(!response.equals("error")){
+				json = jsonParser.parse(response);
+				map = json.getFields();
+			}else if(response.equals("again")){
+				System.out.println("Let's do it again");
+			}
+				
+			else{
+				System.err.println("Scraping aborted...");
+			}
 		} catch (InvalidSyntaxException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	}
+	
+	public static int getRandom(){
+		generator = new Random();
+		int randomIndex = generator.nextInt(Config.getMaxtime());
+		return randomIndex;
 	}
 }

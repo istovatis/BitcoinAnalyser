@@ -50,7 +50,7 @@ public class UserEdgeInputsPublicKeys extends HasParser implements User {
 				Integer[] key = new Integer[pubKeys];
 
 				for (int i = 0; i < pubKeys; i++) {
-					key[i] = Integer.valueOf(tags[i+1]);
+					key[i] = Integer.valueOf(tags[i + 1]);
 				}
 
 				Array keys = connection.createArrayOf("int4", key);

@@ -8,7 +8,7 @@ public class BitcoinAnalyser {
 	 */
 	public static void main(String[] args) {
 		
-		Config.setDBIntegration(false);
+		Config.setDBIntegration(true);
 		Config.setDublicatesIntegration(false);
 		
 		UserEdges userEdges = new UserEdges();
@@ -31,11 +31,9 @@ public class BitcoinAnalyser {
 		UserEdgeInputs userEdgeInputs = new UserEdgeInputs();
 		//userEdgeInputs.readDataFile();
 		
-		Scraper scraper = new Scraper();
-		System.out.println(scraper.excutePost("http://blockchain.info/rawtx/aee28d1bcabe6dea4cf5459d66f22b7e4e68ca23fdd4caca2ed00c276a79e85b?format=json", ""));
-		scraper.parseJson();
-		Transaction tx = new Transaction();
-		tx.createTxFromJson(scraper.getMap());
+		Duplicates duplicates = new Duplicates();
+		duplicates.readDataFile();
+		
 		try {
 			//blockchain.homePage();
 		} catch (Exception e) {

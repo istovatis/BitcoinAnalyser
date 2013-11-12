@@ -21,12 +21,14 @@ public class Transaction {
 	private String hash;		// The hash of the transaction
 	ArrayList<Address> inAddress;
 	ArrayList<Address> outAddress;
+	public static ArrayList<Transaction> txs = new ArrayList<Transaction>();
 
 	/**
 	 * Create transaction from json parsing.
 	 */
 	public void createTxFromJson(Map<JsonStringNode, JsonNode> map) {
-
+		inAddress = new ArrayList<Address>();
+		outAddress = new ArrayList<Address>();
 		for (Map.Entry<JsonStringNode, JsonNode> entry : map.entrySet()) {
 			if (entry.getKey().getText().equals("block_height")) {
 				String value = entry.getValue().getText().toString();
@@ -47,7 +49,7 @@ public class Transaction {
 				String value = entry.getValue().getText().toString();
 				ver = Integer.valueOf(value);
 			} else if (entry.getKey().getText().equals("inputs")) {
-				parseAddress(entry);
+				parseInAddr(entry);
 			} 
 			else if (entry.getKey().getText().equals("vout_sz")) {
 				List<JsonNode> elements = entry.getValue().getElements();
@@ -58,47 +60,71 @@ public class Transaction {
 						Map<JsonStringNode, JsonNode> list = e.getValue().getFields();
 						 for (Map.Entry<JsonStringNode, JsonNode> in :
 							 list.entrySet()) {
+							 address.setInput(true);
 							 address.createAddrFromJson(in.getKey().getText(), in.getValue().getText());
-							 address.setInInput(true);
 						 }
 					}
 				}
 			} 
 			if(entry.getKey().getText().equals("relayed_by")){
 				 this.ip = entry.getValue().getText();
-				 System.out.println(this.ip+"___");
+				 // System.out.println(this.ip+"___");
 			 }
 			 if(entry.getKey().getText().equals("hash")){
 				 this.hash = entry.getValue().getText();
 			 }
 			 if(entry.getKey().getText().equals("out")){
-				 this.hash = entry.getValue().getText();
+				 parseOutAddr(entry);
 			 }
-			 System.out.println(entry.getKey().getText()+"  * "+entry.getValue());
+			 //System.out.println(entry.getKey().getText()+"  * "+entry.getValue());
 		}
-		showInfo();
+		txs.add(this);
+		//showInfo();
 	}
 	
-	public void parseAddress(Map.Entry<JsonStringNode, JsonNode> entry){
+	public void parseInAddr(Map.Entry<JsonStringNode, JsonNode> entry){
 		List<JsonNode> elements = entry.getValue().getElements();
 		for(JsonNode element : elements){
 			List<JsonField> el = element.getFieldList();
 			for(JsonField e : el){
 				Address address = new Address();
+				//System.out.println(e.getName()+" && "+e.getValue());
 				Map<JsonStringNode, JsonNode> list = e.getValue().getFields();
 				 for (Map.Entry<JsonStringNode, JsonNode> in :
 					 list.entrySet()) {
+					 address.setInput(true);
 					 address.createAddrFromJson(in.getKey().getText(), in.getValue().getText());
-					 address.setInInput(true);
+					 this.inAddress.add(address);
 					 //System.out.println(in.getKey().getText()+"   "+in.getValue());
 				 }
 			}
 		}
 	}
 	
+	public void parseOutAddr(Map.Entry<JsonStringNode, JsonNode> entry){
+		List<JsonNode> elements = entry.getValue().getElements();
+		for(JsonNode element : elements){
+			List<JsonField> el = element.getFieldList();
+			for(JsonField e : el){
+				Address address = new Address();
+				 address.setOutput(true);
+				 address.createAddrFromJson(e.getName().getText(), e.getValue().getText());
+				 this.outAddress.add(address);
+			}
+		}
+	}
+	
 	public void showInfo(){
-		System.out.print("Transaction: "+ " Hash: "+hash+" Included In Blocks: "+blockHeight+" Received Time: ");
-		System.out.println(" Relayed by IP: "+ip+" Input Addresses: "+inNum+" Output Addresses: "+outNum);
+		System.out.println("**************");
+		System.out.println("Transaction:");
+		System.out.println("Hash: "+hash);
+		System.out.println("Included In Blocks: "+blockHeight+" Received Time: ");
+		System.out.println("Relayed by IP: "+ip+" Input Addresses: "+inNum+" Output Addresses: "+outNum);
+		System.out.println("**************");
+	}
+	
+	public void showMore(){
+		System.out.println(txs.size()+" Transactions requested");
 	}
 
 }
