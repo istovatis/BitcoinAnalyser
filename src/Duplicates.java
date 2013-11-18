@@ -33,7 +33,7 @@ public class Duplicates extends HasParser {
 		Transaction tx;
 		try {
 			while ((strLine = br.readLine()) != null) {
-				if (rows < 2) {
+				if (rows <= 80000 && rows>=70000) {
 					try {
 						int sleep = Scraper.getRandom();
 						Thread.sleep(sleep);
@@ -44,10 +44,10 @@ public class Duplicates extends HasParser {
 					scraper.excutePost(
 							"http://blockchain.info/rawtx/" + strLine
 									+ "?format=json", "");
-					System.out.println(strLine);
-					System.out.println(scraper.excutePost(
-							"http://blockchain.info/rawtx/" + strLine
-									+ "?format=json", ""));
+//					System.out.println(strLine);
+//					System.out.println(scraper.excutePost(
+//							"http://blockchain.info/rawtx/" + strLine
+//									+ "?format=json", ""));
 					scraper.parseJson();
 					tx = new Transaction();
 					tx.createTxFromJson(scraper.getMap());
