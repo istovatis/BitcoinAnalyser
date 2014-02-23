@@ -1,3 +1,4 @@
+package bitcointools;
 import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.FileInputStream;
@@ -5,10 +6,13 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.sql.SQLException;
-import java.util.Random;
+import java.util.Map;
 
-public class Duplicates extends HasParser {
-	private final String file = "my_data/new_duplicate_trans";
+import argo.jdom.JsonNode;
+import argo.jdom.JsonStringNode;
+
+public class ParseAddress extends HasParser {
+	private final String file = "my_data/new_generated";
 	String selectTableSQL = Queries.duplicateTxHashes();
 
 	@Override
@@ -30,10 +34,9 @@ public class Duplicates extends HasParser {
 
 		String strLine;
 		int rows = 0;
-		Transaction tx;
 		try {
 			while ((strLine = br.readLine()) != null) {
-				if (rows <= 80000 && rows>=70000) {
+				if (rows <= 556) {
 					try {
 						int sleep = Scraper.getRandom();
 						Thread.sleep(sleep);
@@ -41,27 +44,29 @@ public class Duplicates extends HasParser {
 						Thread.currentThread().interrupt();
 					}
 					Scraper scraper = new Scraper();
-					scraper.excutePost(
-							"http://blockchain.info/rawtx/" + strLine
-									+ "?format=json", "");
-//					System.out.println(strLine);
-//					System.out.println(scraper.excutePost(
-//							"http://blockchain.info/rawtx/" + strLine
-//									+ "?format=json", ""));
+					scraper.excutePost("http://blockchain.info/rawtx/"
+							+ strLine + "?format=json", "");
 					scraper.parseJson();
-					tx = new Transaction();
-					tx.createTxFromJson(scraper.getMap());
-					//tx.showMore();
-					rows++;
-				}
-				else
-				{
-					rows++;
-				}
-					if(rows % 10000 == 0){
-						Address.showTagStats();
+					Transaction tx = new Transaction();
+					for (Map.Entry<JsonStringNode, JsonNode> entry : scraper
+							.getMap().entrySet()) {
+						tx.createTxFromJson(entry);
 					}
+					if (tx.isHasTagedAddress()) {
+						tx.getTaggedTxs().add(tx.getHash());
+					}
+					Transaction.txs.add(tx);
+					// tx.showMore();
+					rows++;
+				} else {
+					rows++;
+				}
+				if (rows % 1000 == 0) {
+					// Address.showTagStats();
+				}
 			}
+			System.out.println(Address.getGenericCount() + " counter");
+			Address.showHashTags();
 			Address.showTagStats();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block

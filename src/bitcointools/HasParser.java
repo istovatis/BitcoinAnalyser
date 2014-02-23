@@ -1,3 +1,4 @@
+package bitcointools;
 import java.io.BufferedReader;
 import java.io.File;
 import java.sql.Connection;
@@ -9,14 +10,15 @@ public abstract class HasParser {
 	protected String table;
 	protected String duplicateTable;
 	public final static int batchSize = 500000;
-	PreparedStatement preparedStatement;
-	PreparedStatement duplicateStatement;  // Statement for dublicate data
-	Connection connection;
+	protected PreparedStatement preparedStatement;
+	protected PreparedStatement duplicateStatement;  // Statement for dublicate data
+	protected Connection connection;
 	BufferedReader br; // BufferReader for file parsing
-	final static String path = System.getProperty("user.home")
-			+ File.separator
-			+ "Dropbox/development/bitcoin/bitcoin_uic_data_and_code_20130107/bitcoin_network_blockchain_215529/";
-
+//	final static String path = System.getProperty("user.home")
+//			+ File.separator
+//			+ "Dropbox/development/bitcoin/bitcoin_uic_data_and_code_20130107/bitcoin_network_blockchain_215529/";
+	//final static String path = File.separator+ "media/soloikos/723D3C603F1AF96D/development/bitcoin/bitcoin_uic_data_and_code_20130410/";
+	final static String path = System.getProperty("user.home")+File.separator+"bitcoin"+File.separator;
 	// System.getProperty("user.dir")+File.separator;
 	public HasParser() {
 		connection = Database.get().connectPostgre();

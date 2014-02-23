@@ -1,3 +1,4 @@
+package bitcointools;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -5,10 +6,10 @@ import java.sql.Statement;
 import java.util.Properties;
 
 public class Database {
-	private final static String name = "bitcoin";
+	private final static String name = "abe";
 	private final static String user = "postgres";
 	private final static String pass = "elephant";
-	public final static String database = "bitcoin";
+	public final static String database = "abe";
 	
 	Connection connection;
 	Statement statement;	// statement for insert query
@@ -71,4 +72,3 @@ public class Database {
 	
 
 }
-
