@@ -38,10 +38,10 @@ public class UserClustering1 extends HasParser {
 			addedTxs = new HashSet<Integer>();
 			Map<Integer, Integer> txToUser = new HashMap<Integer, Integer>();
 			String sql = "SELECT tx_id, txin_id FROM txin WHERE txin_id = ? LIMIT 1";
-
+			
 			preparedStatement = connection.prepareStatement(sql);
-
-			for (int i = minTx; i < maxTx / 10; i++) {
+			
+			for (int i = minTx; i < maxTx/10; i++) {
 				preparedStatement.setInt(1, i);
 				rs = preparedStatement.executeQuery();
 
@@ -53,7 +53,7 @@ public class UserClustering1 extends HasParser {
 					if (txToUser.containsKey(currentTx))
 						selectedSet = Integer.valueOf(txToUser.get(currentTx));
 				}
-				// rs.close();
+				//rs.close();
 
 				if (selectedSet != -1) {
 					groupedTxs.get(selectedSet).add(currentTxin);
@@ -72,21 +72,22 @@ public class UserClustering1 extends HasParser {
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
-		} finally {
-			try {
-				if (preparedStatement != null) {
-					preparedStatement.close();
-				}
+		}
+		 finally {
+			 try {
+				 if (preparedStatement != null) {
+						preparedStatement.close();
+					}
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-		}
+		 }
 	}
 
-	public void clusterTxsFinal() {
-		String insertTableSQL = "INSERT INTO " + entity + "(id, tx_ids) VALUES"
-				+ "(?,?)";
+	public void clusterTxsFinal(){
+		String insertTableSQL = "INSERT INTO " + entity
+				+ "(id, tx_ids) VALUES" + "(?,?)";
 		String updateTableSQL = "UPDATE " + entity
 				+ " SET tx_ids = array_append(tx_ids, ?) where id = ?";
 		Statement stSelect;
@@ -94,40 +95,35 @@ public class UserClustering1 extends HasParser {
 			stSelect = connection.createStatement();
 			Statement stIndex = connection.createStatement();
 			preparedStatement = connection.prepareStatement(insertTableSQL);
-			updateStatement = connection.prepareStatement(updateTableSQL);
-			System.out.println("Scanning from " + numInsertedTxs + " to "
-					+ maxTx / 100);
-			for (int i = numInsertedTxs; i <= maxTx; i++) {
-				// String sql = "SELECT tx_id FROM txin WHERE txin_id = " +
-				// i+" LIMIT 1";
-				// rs = stSelect.executeQuery(sql);
+			updateStatement  = connection.prepareStatement(updateTableSQL);
+			System.out.println("Scanning from "+numInsertedTxs+" to "+maxTx/100);
+			for (int i = numInsertedTxs; i <= maxTx; i++ ) {
+				//String sql = "SELECT tx_id FROM txin WHERE txin_id = " + i+" LIMIT 1";
+				//rs = stSelect.executeQuery(sql);
 
-				// while (rs.next()) {
-				// currentTx = rs.getInt(1);
-				String sqlIndex = "SELECT id FROM entity WHERE " + i
-						+ "= any(tx_ids) LIMIT 1";
-				rs = stIndex.executeQuery(sqlIndex);
-				while (rs.next()) {
-					int index = rs.getInt(1);
-					// System.out.println(index+" "+currentTx);
-					if (index < i) {
-						preparedStatement.setInt(1, i);
-						preparedStatement.setInt(2, i);
-						;
-						preparedStatement.executeUpdate();
-					} else {
-						updateStatement.setInt(1, i);
-						Integer[] tmp = new Integer[] { i };
-						Array sqlArray = connection.createArrayOf("VALUELIST",
-								tmp);
-						updateStatement.setArray(2, sqlArray);
-						updateStatement.executeUpdate();
-					}
-				}
-				// }
+				//while (rs.next()) {
+					//currentTx = rs.getInt(1);
+					String sqlIndex = "SELECT id FROM entity WHERE "+i + "= any(tx_ids) LIMIT 1";
+					rs = stIndex.executeQuery(sqlIndex);
+					while (rs.next()) {
+						int index = rs.getInt(1);
+						//System.out.println(index+" "+currentTx);
+						if(index < i){
+							preparedStatement.setInt(1, i);
+							preparedStatement.setInt(2, i);;
+							preparedStatement.executeUpdate();
+						}
+						else {
+							updateStatement.setInt(1, i);
+							Integer[] tmp = new Integer[] { i };
+							Array sqlArray = connection.createArrayOf("VALUELIST", tmp);
+							updateStatement.setArray(2, sqlArray);
+							updateStatement.executeUpdate();
+						}
+					}					
+				//}	
 			}
-			System.out.println("Inserted " + (maxTx - numInsertedTxs + 1)
-					+ " entities successfully!");
+			System.out.println("Inserted "+(maxTx - numInsertedTxs +1)+" entities successfully!");
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -246,7 +242,7 @@ public class UserClustering1 extends HasParser {
 			e.printStackTrace();
 		}
 	}
-
+	
 	public void start() {
 		findBounds("txin");
 		clusterTxs();
