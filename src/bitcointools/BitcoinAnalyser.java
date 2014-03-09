@@ -49,16 +49,10 @@ public class BitcoinAnalyser {
 		//removeNewGens.readDataFile();
 		
 		UserClustering1 userClustering1 = new UserClustering1();
-		userClustering1.findBounds("txin");
-		userClustering1.clusterTxs();
-		userClustering1.insertUsersToDB();
-		//userClustering1.clusterTxsFinal();
+		//userClustering1.start();
 		
 		ShadowClustering shadowClustering = new ShadowClustering();
-//		shadowClustering.eliminateCoinGens("block_tx");
-//		shadowClustering.eliminateOtherThanTwoOutputs();
-//		shadowClustering.findBounds("txout");
-//		shadowClustering.clusterTxs();
+		shadowClustering.start();
 		
 		try {
 			//blockchain.homePage();

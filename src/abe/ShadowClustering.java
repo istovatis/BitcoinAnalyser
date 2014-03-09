@@ -15,7 +15,7 @@ import bitcointools.Database;
 import bitcointools.HasParser;
 
 public class ShadowClustering extends HasParser {
-	HashSet<Integer> notNewGenTx;
+	HashSet<Integer> notCoinGenTx;
 	ArrayList<HashSet<Integer>> groupedTxs;
 	HashSet<Integer> addedPubKey;
 	ResultSet rs;
@@ -24,7 +24,7 @@ public class ShadowClustering extends HasParser {
 	int moreThanOneShadows = 0; //num of txs that contain more than one shadow
 
 	public ShadowClustering() {
-		table = "entity";
+		table = "shadow_entity";
 	}
 
 	public void clusterTxs() {
@@ -44,8 +44,8 @@ public class ShadowClustering extends HasParser {
 					int txout_id = rs.getInt(2);
 					int pubkey_id = rs.getInt(3);
 					// There is only one shadow at every tx
-					if(!notNewGenTx.contains(tx_id)){
-						notNewGenTx.add(tx_id);
+					if(!notCoinGenTx.contains(tx_id)){
+						notCoinGenTx.add(tx_id);
 						// This is the 1st appearance of the key
 						if(!addedPubKey.contains(pubkey_id)) {
 							ShadowAddress.shadowAddresses.add(new ShadowAddress(tx_id, txout_id, pubkey_id));
@@ -86,7 +86,7 @@ public class ShadowClustering extends HasParser {
 	public void insertUsersToDB() {
 		try {
 			String insertTableSQL = "INSERT INTO " + table
-					+ "(id, tx_ids) VALUES" + "(?,?)";
+					+ "(id, shadow_addr) VALUES" + "(?,?)";
 			preparedStatement = connection.prepareStatement(insertTableSQL);
 
 			for (int i = 0; i < groupedTxs.size(); i++) {
@@ -114,6 +114,7 @@ public class ShadowClustering extends HasParser {
 			Statement stSelect = connection.createStatement();
 			preparedStatement = connection.prepareStatement(appendTx);
 			for (int i = minTx; i < 5; i++) {
+				
 				String sql = "SELECT pubkey_id FROM txout WHERE tx_id = " + i;
 				ResultSet rs = stSelect.executeQuery(sql);
 				// stSelect.setInt(1, i);
@@ -157,19 +158,27 @@ public class ShadowClustering extends HasParser {
 	 * @param table
 	 */
 	public void eliminateCoinGens(String table) {
-		notNewGenTx = new HashSet<Integer>();
+		notCoinGenTx = new HashSet<Integer>();
 		connection = Database.get().connectPostgre();
-		String stats = "select tx_id from " + table + " where tx_pos != 0";
+		String stats = "select tx_id from " + table + " where tx_pos != 0 order by tx_id limit "+maxTx/100;
 		try {
 			preparedStatement = connection.prepareStatement(stats);
 			ResultSet rs = preparedStatement.executeQuery();
 			while (rs.next()) {
-				notNewGenTx.add(rs.getInt(1));
+				notCoinGenTx.add(rs.getInt(1));
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-		System.out.println(notNewGenTx + " Transactions that are not coin generations loaded");
+		finally {
+			if (connection != null)
+				try {
+					connection.close();
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+		}
+		System.out.println(notCoinGenTx.size() + " Transactions that are not coin generations loaded");
 	}
 	
 	/**
@@ -177,10 +186,11 @@ public class ShadowClustering extends HasParser {
 	 */
 	public void eliminateOtherThanTwoOutputs(){
 		connection = Database.get().connectPostgre();
-		table = "txout";
-		Iterator<Integer> it = notNewGenTx.iterator();
+		Iterator<Integer> it = notCoinGenTx.iterator();
+		int size = notCoinGenTx.size();
+		int i = 0;
 		while (it.hasNext()) {
-			String stats = "select count(txout_id) from " + table + " where tx_id = "+it.next();
+			String stats = "select count(txout_id) from txout where tx_id = "+it.next();
 			try {
 				preparedStatement = connection.prepareStatement(stats);
 				ResultSet rs = preparedStatement.executeQuery();
@@ -191,9 +201,13 @@ public class ShadowClustering extends HasParser {
 			} catch (SQLException e) {
 				e.printStackTrace();
 			}	
+			i++;
+			if (i % size == 1000)
+				System.out.println(i+" scanned at "+new Date());
 		}	
-		System.out.println(notNewGenTx + " Transactions contain two outputs");
+		System.out.println(notCoinGenTx.size() + " Transactions contain two outputs");
 	}
+
 
 	public void findBounds(String table) {
 		connection = Database.get().connectPostgre();
@@ -212,5 +226,12 @@ public class ShadowClustering extends HasParser {
 			e.printStackTrace();
 
 		}
+	}
+	
+	public void start(){
+		findBounds("txout");
+		eliminateCoinGens("block_tx");
+		eliminateOtherThanTwoOutputs();
+		clusterTxs();
 	}
 }
