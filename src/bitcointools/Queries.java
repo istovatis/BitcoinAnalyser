@@ -31,4 +31,21 @@ public class Queries {
 		return "SELECT txout.txout_pubkey_id from tx inner join txout where tx.tx";
 	}
 	
+	/**
+	 * Retun the pubkeys of txins used a specific tx_id
+	 * @return
+	 */
+	public static String txInPubkeys() {
+		return " SELECT txout.pubkey_id FROM txin LEFT JOIN txout ON (txout.txout_id = txin.txout_id) WHERE txin.tx_id = ?  ";
+	}
+	
+	public static String maxEntityLength() {
+		return "select max(array_length(pub_keys, 1)) from entity";
+	}
+	
+	public static String avgEntityLength() {
+		return "select avg(array_length(pub_keys, 1)) from entity";
+	}
+
+	
 }

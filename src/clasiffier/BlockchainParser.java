@@ -1,14 +1,17 @@
-package bitcointools;
+package clasiffier;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.PriorityQueue;
 
 import org.eclipse.jetty.util.MultiMap;
 import org.junit.Test;
+
+import bitcointools.Database;
 
 import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.html.HtmlDivision;
@@ -33,7 +36,7 @@ public class BlockchainParser {
 	private static HashSet<BlockchainParser> tagList = new HashSet<BlockchainParser>();
 	Multimap<String, String> mostTaged = ArrayListMultimap.create();
 
-	private final String blockChain = "https://blockchain.info/tags";	// the webpage
+	private final String blockChain = "https://blockchain.info/tags?offset=";	// the webpage
 	private String address;		
 	private String tag;
 	private String link;
@@ -41,62 +44,66 @@ public class BlockchainParser {
 
 	private int numVerified;	//Number of verified tags
 	private int numNotVerified;		//Number of not verified tags
+	private final static int offset = 200;
 	
 	@Test
 	public void homePage() throws Exception {
+		System.out.println("Starting finding donations from blockchain at "+new Date());
 		final WebClient webClient = new WebClient();
 		webClient.getOptions().setCssEnabled(false);
 		webClient.getOptions().setJavaScriptEnabled(false);
-		final HtmlPage page = webClient.getPage(blockChain);
-
-		List<?> list = page.getByXPath("//table[@class='table table-striped']");
-		if (list.size() > 0) {
-			HtmlTable table = (HtmlTable) list.get(0);
-			for (int i = 1; i < table.getRowCount(); i++) {
-				final HtmlTableRow row = table.getRow(i);
-				int rowCell = 0;
-				BlockchainParser record = new BlockchainParser();
-				for (final HtmlTableCell cell : row.getCells()) {
-					if (rowCell == 0) {		//get the address
-						record.address = cell.asText();
-					} else if (rowCell == 1) {		//get the tag
-						record.tag = cell.asText();
-					} else if (rowCell == 2) {		// get the link
-						record.link = cell.asText();
-					} else if (rowCell == 3) {
-						if (cell.asText().equals("")) {
-							String text = cell.asXml();
-							if (text.length() > 1) {
-								int start = text.indexOf("src=");
-								int end = text.indexOf("png");
-								if (start > 1 && end > 1) {		//get the verification status
-									String verified = text.substring(start,
-											end - 1);
-									if (verified.endsWith("green_tick")) {
-										record.verified = true;
-										numVerified++;
-										// System.out.println("Verified!");
-									} else if (verified.endsWith("red_cross")) {
-										// System.out.println("Not verified!");
-										record.verified = false;
-										numNotVerified++;
+		for (int range =0 ; range< 12; range++ ) {
+			final HtmlPage page = webClient.getPage(blockChain+offset*range);
+			List<?> list = page.getByXPath("//table[@class='table table-striped']");
+			if (list.size() > 0) {
+				HtmlTable table = (HtmlTable) list.get(0);
+				for (int i = 1; i < table.getRowCount(); i++) {
+					final HtmlTableRow row = table.getRow(i);
+					int rowCell = 0;
+					BlockchainParser record = new BlockchainParser();
+					for (final HtmlTableCell cell : row.getCells()) {
+						if (rowCell == 0) {		//get the address
+							record.address = cell.asText();
+						} else if (rowCell == 1) {		//get the tag
+							record.tag = cell.asText();
+						} else if (rowCell == 2) {		// get the link
+							record.link = cell.asText();
+						} else if (rowCell == 3) {
+							if (cell.asText().equals("")) {
+								String text = cell.asXml();
+								if (text.length() > 1) {
+									int start = text.indexOf("src=");
+									int end = text.indexOf("png");
+									if (start > 1 && end > 1) {		//get the verification status
+										String verified = text.substring(start,
+												end - 1);
+										if (verified.endsWith("green_tick")) {
+											record.verified = true;
+											numVerified++;
+											// System.out.println("Verified!");
+										} else if (verified.endsWith("red_cross")) {
+											// System.out.println("Not verified!");
+											record.verified = false;
+											numNotVerified++;
+										}
 									}
+								} else {
+									System.out.println(record.link
+											+ " Not classified");
 								}
-							} else {
-								System.out.println(record.link
-										+ " Not classified");
 							}
+							mostTaged.put(record.link, record.address);
+							tagList.add(record);
 						}
-						mostTaged.put(record.link, record.address);
-						tagList.add(record);
+						// System.out.println("   Found cell: " + cell.asText());
+						rowCell++;
 					}
-					// System.out.println("   Found cell: " + cell.asText());
-					rowCell++;
 				}
+			} else {
+				System.out.println("Tag list not parsed from website");
 			}
-		} else {
-			System.out.println("Tag list not parsed from website");
 		}
+		
 		// showAllRecords();
 		insertToDB();
 		showStats();

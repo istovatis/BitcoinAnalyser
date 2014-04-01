@@ -1,8 +1,9 @@
 package bitcointools;
-import java.sql.Connection;
 
-import abe.ShadowClustering;
-import abe.UserClustering1;
+import clasiffier.BlockchainParser;
+
+import abe.UserClustering.ShadowClustering;
+import abe.UserClustering.UserClustering1;
 
 
 public class BitcoinAnalyser {
@@ -52,10 +53,10 @@ public class BitcoinAnalyser {
 		//userClustering1.start();
 		
 		ShadowClustering shadowClustering = new ShadowClustering();
-		shadowClustering.start();
+		//shadowClustering.start();
 		
 		try {
-			//blockchain.homePage();
+			blockchain.homePage();
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

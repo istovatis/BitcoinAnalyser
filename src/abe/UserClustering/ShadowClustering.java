@@ -1,4 +1,4 @@
-package abe;
+package abe.UserClustering;
 import java.sql.Array;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -11,12 +11,12 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 
+import abe.Filters;
 import bitcointools.Database;
 import bitcointools.HasParser;
 
 public class ShadowClustering extends HasParser {
-	HashSet<Integer> notCoinGenTx;
-	ArrayList<HashSet<Integer>> groupedTxs;
+	private ArrayList<HashSet<Integer>> groupedTxs;
 	HashSet<Integer> addedPubKey;
 	ResultSet rs;
 	HashSet<Integer> currentTx;
@@ -27,7 +27,7 @@ public class ShadowClustering extends HasParser {
 		table = "shadow_entity";
 	}
 
-	public void clusterTxs() {
+	public void clusterTxs(HashSet<Integer> txs) {
 		try {
 			groupedTxs = new ArrayList<HashSet<Integer>>();
 			Map<Integer, Integer> txToUser = new HashMap<Integer, Integer>();
@@ -44,8 +44,8 @@ public class ShadowClustering extends HasParser {
 					int txout_id = rs.getInt(2);
 					int pubkey_id = rs.getInt(3);
 					// There is only one shadow at every tx
-					if(!notCoinGenTx.contains(tx_id)){
-						notCoinGenTx.add(tx_id);
+					if(!txs.contains(tx_id)){
+						txs.add(tx_id);
 						// This is the 1st appearance of the key
 						if(!addedPubKey.contains(pubkey_id)) {
 							ShadowAddress.shadowAddresses.add(new ShadowAddress(tx_id, txout_id, pubkey_id));
@@ -100,7 +100,6 @@ public class ShadowClustering extends HasParser {
 				}
 			}
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -151,87 +150,13 @@ public class ShadowClustering extends HasParser {
 		// TODO Auto-generated method stub
 
 	}
-
-	/**
-	 * Find txs that are not coin generations
-	 * 
-	 * @param table
-	 */
-	public void eliminateCoinGens(String table) {
-		notCoinGenTx = new HashSet<Integer>();
-		connection = Database.get().connectPostgre();
-		String stats = "select tx_id from " + table + " where tx_pos != 0 order by tx_id limit "+maxTx/100;
-		try {
-			preparedStatement = connection.prepareStatement(stats);
-			ResultSet rs = preparedStatement.executeQuery();
-			while (rs.next()) {
-				notCoinGenTx.add(rs.getInt(1));
-			}
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-		finally {
-			if (connection != null)
-				try {
-					connection.close();
-				} catch (SQLException e) {
-					e.printStackTrace();
-				}
-		}
-		System.out.println(notCoinGenTx.size() + " Transactions that are not coin generations loaded");
-	}
-	
-	/**
-	 * Eliminate txs that contain other than two outputs
-	 */
-	public void eliminateOtherThanTwoOutputs(){
-		connection = Database.get().connectPostgre();
-		Iterator<Integer> it = notCoinGenTx.iterator();
-		int size = notCoinGenTx.size();
-		int i = 0;
-		while (it.hasNext()) {
-			String stats = "select count(txout_id) from txout where tx_id = "+it.next();
-			try {
-				preparedStatement = connection.prepareStatement(stats);
-				ResultSet rs = preparedStatement.executeQuery();
-				while (rs.next()) {
-					if(rs.getInt(1) != 2)
-						it.remove();
-				}
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}	
-			i++;
-			if (i % size == 1000)
-				System.out.println(i+" scanned at "+new Date());
-		}	
-		System.out.println(notCoinGenTx.size() + " Transactions contain two outputs");
-	}
-
-
-	public void findBounds(String table) {
-		connection = Database.get().connectPostgre();
-		String stats = "select min(txout_id), max(txout_id) from " + table;
-		try {
-			preparedStatement = connection.prepareStatement(stats);
-			ResultSet rs = preparedStatement.executeQuery();
-			while (rs.next()) {
-				minTx = rs.getInt(1);
-				maxTx = rs.getInt(2);
-				System.out.println("Scanning from " + minTx + " tx to " + maxTx
-						+ " tx.");
-			}
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-
-		}
-	}
 	
 	public void start(){
-		findBounds("txout");
-		eliminateCoinGens("block_tx");
-		eliminateOtherThanTwoOutputs();
-		clusterTxs();
+		Filters filter = new Filters();
+		filter.findBounds("txout");
+		HashSet<Integer> notNewGens = filter.eliminateCoinGens(filter.getMax());
+		HashSet<Integer> notNewGensOnlyTwoOutputs = filter.eliminateOtherThanTwoOutputs(notNewGens);
+		clusterTxs(notNewGensOnlyTwoOutputs);
 	}
+
 }

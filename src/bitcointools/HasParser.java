@@ -13,12 +13,12 @@ public abstract class HasParser {
 	protected PreparedStatement preparedStatement;
 	protected PreparedStatement duplicateStatement;  // Statement for dublicate data
 	protected Connection connection;
-	BufferedReader br; // BufferReader for file parsing
+	protected BufferedReader br; // BufferReader for file parsing
 //	final static String path = System.getProperty("user.home")
 //			+ File.separator
 //			+ "Dropbox/development/bitcoin/bitcoin_uic_data_and_code_20130107/bitcoin_network_blockchain_215529/";
 	//final static String path = File.separator+ "media/soloikos/723D3C603F1AF96D/development/bitcoin/bitcoin_uic_data_and_code_20130410/";
-	final static String path = System.getProperty("user.home")+File.separator+"bitcoin"+File.separator;
+	protected final static String path = System.getProperty("user.home")+File.separator+"bitcoin"+File.separator;
 	// System.getProperty("user.dir")+File.separator;
 	public HasParser() {
 		connection = Database.get().connectPostgre();
@@ -63,7 +63,6 @@ public abstract class HasParser {
 			System.out.println("Deleted all data from " + this.duplicateTable + " at "
 					+ new Date());
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
@@ -75,8 +74,8 @@ public abstract class HasParser {
 		try {
 			statement.executeBatch();
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
+			System.out.println("More info: "+e.getNextException());
 		}
 		System.out.println(rows + " Inserted at " + new Date());
 		System.out.println("--------------------------------------------");
