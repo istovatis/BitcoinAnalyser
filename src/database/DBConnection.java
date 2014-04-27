@@ -1,30 +1,24 @@
-package bitcointools;
+package database;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.Properties;
 
-public class Database {
+public class DBConnection {
 	private final static String name = "abe";
 	private final static String user = "postgres";
 	private final static String pass = "elephant";
 	public final static String database = "abe";
-	
-	Connection connection;
-	Statement statement;	// statement for insert query
-	//PreparedStatement preparedStatement;	// statement for update query
-	
-	String query;	
+	private final static int port = 3306;
 	
 	/**
 	 * The singleton instance of the class.
 	 */
-	private static Database instance;
+	private static DBConnection instance;
 
-	public static Database get() {
+	public static DBConnection get() {
 		if (instance == null) {
-			instance = new Database();
+			instance = new DBConnection();
 		}
 		return instance;
 	}
@@ -37,7 +31,7 @@ public class Database {
 		connectionProps.put("password", pass);
 
 		conn = DriverManager.getConnection("jdbc:mysql://" + "localhost:"
-				+ 3306 + "/"+name, connectionProps);
+				+ port + "/"+name, connectionProps);
 
 		System.out.println("Connected to database");
 		return conn;
@@ -59,6 +53,7 @@ public class Database {
 	}
 	
 	public Connection connect() {
+		Connection connection = null;
 		try {
 			connection = DriverManager
 					.getConnection("jdbc:postgresql://127.0.0.1:5432/"+database,

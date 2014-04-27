@@ -28,13 +28,19 @@ import java.util.List;
 import org.apache.commons.collections.MultiHashMap;
 import org.apache.commons.collections.MultiMap;
 
+import database.DBInteraction;
+import database.Queries;
+
+import abe.Config;
+
+
 /**
  * This class keeps all transaction data
  * 
  * @author istovatis
  * 
  */
-public class UserEdges extends HasParser {
+public class UserEdges extends DBInteraction {
 	protected int transactionKey;
 	private int from;
 	private int to;
@@ -62,7 +68,7 @@ public class UserEdges extends HasParser {
 	public void readDataFile() {
 		try {
 			br = new BufferedReader(new InputStreamReader(new DataInputStream(
-					new FileInputStream(HasParser.path + file))));
+					new FileInputStream(DBInteraction.path + file))));
 			String insertTableSQL = "INSERT INTO "
 					+ table
 					+ "(line, transaction_key, user_from_key, user_key_to, date, value) VALUES"
@@ -242,7 +248,7 @@ public class UserEdges extends HasParser {
 			FileWriter fw = new FileWriter(outFile.getAbsoluteFile());
 			BufferedWriter bw = new BufferedWriter(fw);
 			br = new BufferedReader(new InputStreamReader(new DataInputStream(
-					new FileInputStream(HasParser.path + file))));
+					new FileInputStream(DBInteraction.path + file))));
 			int count = 0;
 			// Read just the first line and do nothing
 			String strLine = br.readLine();
@@ -294,7 +300,7 @@ public class UserEdges extends HasParser {
 			FileWriter fw = new FileWriter(outFile.getAbsoluteFile());
 			BufferedWriter bw = new BufferedWriter(fw);
 			br = new BufferedReader(new InputStreamReader(new DataInputStream(
-					new FileInputStream(HasParser.path + inF))));
+					new FileInputStream(DBInteraction.path + inF))));
 			int count = 0;
 			// Read just the first line and do nothing
 			String strLine;
@@ -358,7 +364,7 @@ public class UserEdges extends HasParser {
 			System.out.println("Splitting file starting at " + date);
 
 			br = new BufferedReader(new InputStreamReader(new DataInputStream(
-					new FileInputStream(HasParser.path + inF))));
+					new FileInputStream(DBInteraction.path + inF))));
 			int count = 0;
 			// Read just the first line and do nothing
 			String strLine;

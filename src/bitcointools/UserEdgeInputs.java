@@ -9,6 +9,12 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.Date;
 
+import database.DBConnection;
+import database.DBInteraction;
+
+import abe.Config;
+
+
 /**
  * This class refers to Transaction keys used as input in "this" transaction.
  * For example at row: 46,626,639,640,641,624,627, for transaction id=46
@@ -17,7 +23,7 @@ import java.util.Date;
  * @author istovatis
  * 
  */
-public class UserEdgeInputs extends HasParser implements User {
+public class UserEdgeInputs extends DBInteraction implements User {
 	// Transaction keys used as input in "this" transaction
 	private int[] keys;
 
@@ -31,12 +37,12 @@ public class UserEdgeInputs extends HasParser implements User {
 	@Override
 	public void readDataFile() {
 		try {
-			connection = Database.get().connectPostgre();
+			connection = DBConnection.get().connectPostgre();
 			if (Config.isDBIntegration()) {
 				emptyTable();
 			}
 			br = new BufferedReader(new InputStreamReader(new DataInputStream(
-					new FileInputStream(HasParser.path + file))));
+					new FileInputStream(DBInteraction.path + file))));
 			String insertTableSQL = "INSERT INTO " + table
 					+ "(line, transaction_key, transaction_keys) VALUES"
 					+ "(?,?,?)";

@@ -9,17 +9,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 import clasiffier.ListAddress.Cluster;
+import database.DBConnection;
+import database.DBInteraction;
 
-import bitcointools.Config;
-import bitcointools.Database;
-import bitcointools.HasParser;
+import abe.Config;
+import abe.core.ConvertAddressToHash160WithParser;
 import bitcointools.Key;
 
 public class ListManager extends Key {
 	private static List<ListAddress> listAddresses;
 	protected String file;
 	protected String column;
-	String path = HasParser.path + "/Lists/";
+	String path = DBInteraction.path + "/Lists/";
 
 	public ListManager(Cluster cluster) {
 		listAddresses = new ArrayList<ListAddress>();
@@ -68,7 +69,8 @@ public class ListManager extends Key {
 	 */
 	public void generate(Enum cluster) {
 		try {
-			connection = Database.get().connectPostgre();
+			ListAddress.setIsComplexClusters(cluster.toString());
+			connection = DBConnection.get().connectPostgre();
 			br = new BufferedReader(new InputStreamReader(new DataInputStream(new FileInputStream(file))));
 			String getIdSql = "SELECT pubkey_id from pubkey WHERE pubkey_hash = ?";
 			preparedStatement = connection.prepareStatement(getIdSql);
@@ -77,9 +79,11 @@ public class ListManager extends Key {
 			ListAddress listAddress;
 			while ((strLine = br.readLine()) != null) {
 				String[] line = strLine.split(",");
-				String address = line[0];
-				listAddress = new ListAddress(address, (Cluster) cluster);
-				preparedStatement.setString(1, listAddress.getAddress());
+				if (ListAddress.isComplexCluster())
+					listAddress = new ListAddress(line[0], line[1], (Cluster) cluster);
+				else
+					listAddress = new ListAddress(line[0], (Cluster) cluster);	
+				preparedStatement.setString(1, ConvertAddressToHash160WithParser.convertAddressToHash160(listAddress.getAddress()));
 
 				ResultSet rs = preparedStatement.executeQuery();
 				while (rs.next()) {
@@ -94,4 +98,5 @@ public class ListManager extends Key {
 			System.out.println(e.getMessage());
 		}
 	}
+	
 }

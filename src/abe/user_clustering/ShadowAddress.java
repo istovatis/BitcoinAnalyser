@@ -1,4 +1,4 @@
-package abe.UserClustering;
+package abe.user_clustering;
 import java.util.ArrayList;
 
 

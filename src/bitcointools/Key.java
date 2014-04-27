@@ -1,6 +1,9 @@
 package bitcointools;
 import java.util.ArrayList;
 
+import database.DBInteraction;
+
+
 /**
  * Documentation from https://github.com/harrigan/bitcointools: This class is responsible for lengthy text keys for public keys (i.e.
  * “1EnHwdiKxvTE5AzcSnZqS52mMcHSLtCLwH”) and transaction keys (i.e.
@@ -14,7 +17,7 @@ import java.util.ArrayList;
  * @author istovatis
  * 
  */
-public abstract class Key extends HasParser{
+public abstract class Key extends DBInteraction{
 	String key;
 	ArrayList<Key> keyList;
 	@Override

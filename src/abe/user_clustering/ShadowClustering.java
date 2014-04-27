@@ -1,4 +1,4 @@
-package abe.UserClustering;
+package abe.user_clustering;
 import java.sql.Array;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -11,11 +11,12 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 
-import abe.Filters;
-import bitcointools.Database;
-import bitcointools.HasParser;
+import database.DBConnection;
+import database.DBInteraction;
 
-public class ShadowClustering extends HasParser {
+import abe.Filters;
+
+public class ShadowClustering extends DBInteraction {
 	private ArrayList<HashSet<Integer>> groupedTxs;
 	HashSet<Integer> addedPubKey;
 	ResultSet rs;

@@ -9,6 +9,12 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.Date;
 
+import database.DBConnection;
+import database.DBInteraction;
+
+import abe.Config;
+
+
 /**
  * Refers to the public keys that are used to every transaction. For example,
  * row 10819200,8862117,8862117 shows that for transaction 10819200 two public
@@ -17,7 +23,7 @@ import java.util.Date;
  * @author istovatis
  * 
  */
-public class UserEdgeInputsPublicKeys extends HasParser implements User {
+public class UserEdgeInputsPublicKeys extends DBInteraction implements User {
 	// Transaction keys used as input in "this" transaction
 	private int[] keys;
 	private int transaction_key;
@@ -30,12 +36,12 @@ public class UserEdgeInputsPublicKeys extends HasParser implements User {
 
 	public void readDataFile() {
 		try {
-			connection = Database.get().connectPostgre();
+			connection = DBConnection.get().connectPostgre();
 			if (Config.isDBIntegration()) {
 				emptyTable();
 			}
 			br = new BufferedReader(new InputStreamReader(new DataInputStream(
-					new FileInputStream(HasParser.path + file))));
+					new FileInputStream(DBInteraction.path + file))));
 			String insertTableSQL = "INSERT INTO " + table
 					+ "(line, transaction_key, public_keys) VALUES" + "(?,?,?)";
 			preparedStatement = connection.prepareStatement(insertTableSQL);

@@ -1,4 +1,4 @@
-package abe.UserClustering;
+package abe.user_clustering;
 
 import java.sql.Array;
 import java.sql.PreparedStatement;
@@ -12,17 +12,18 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 
-import abe.Filters;
-import bitcointools.HasParser;
-import bitcointools.Database;
-import bitcointools.Queries;
+import database.DBConnection;
+import database.DBInteraction;
+import database.Queries;
 
-public class UserClustering1 extends HasParser {
+import abe.Filters;
+
+public class UserClustering1 extends DBInteraction {
 	int minTx;
 	int maxTx;
 	ArrayList<HashSet<Integer>> groupedTxs;
 	HashSet<Integer> addedTxs;
-	ResultSet rs, rs2;
+	protected ResultSet rs, rs2;
 	Integer currentTx, currentPubkey = 0;
 	int[] ole = { 23, 13, 12, 45, 23, 45, 45, 13, 4, 5, 4, 4 };
 	String entity = "entity";
@@ -94,9 +95,9 @@ public class UserClustering1 extends HasParser {
 			System.out.println("Starting tx grouping of " + limit + "% at " + new Date());
 			Map<Integer, Integer> pubKeyToTx = new HashMap<Integer, Integer>();
 			groupedTxs = new ArrayList<HashSet<Integer>>();
-			preparedStatement = connection.prepareStatement(Queries.txInPubkeys());
+			preparedStatement = connection.prepareStatement(Queries.pubkeysIdOfTxInputs());
 			// pubkeys of txins that exist at the current tx
-			HashSet<Integer> currentTxPuKeys = new HashSet<Integer>(); 
+			HashSet<Integer> currentTxPuKeys = new HashSet<Integer>();
 			for (int tx = minTx; tx < maxTx / limit; tx++) {
 				preparedStatement.setInt(1, tx);
 				rs = preparedStatement.executeQuery();
@@ -111,22 +112,23 @@ public class UserClustering1 extends HasParser {
 						selectedSet = pubKeyToTx.get(currentPubkey);
 						found = true;
 					}
-//						pubKeyToTx.put(currentPubkey, selectedSet);
-//					} else if (currentPubkey != 0) {
-//						int size = groupedTxs.size();
-//						pubKeyToTx.put(currentPubkey, size == 0 ? size : size - 1);
-//					}
+					// pubKeyToTx.put(currentPubkey, selectedSet);
+					// } else if (currentPubkey != 0) {
+					// int size = groupedTxs.size();
+					// pubKeyToTx.put(currentPubkey, size == 0 ? size : size -
+					// 1);
+					// }
 				}
-				if(!currentTxPuKeys.contains(0)){
+				if (!currentTxPuKeys.contains(0)) {
 					for (Integer pubkey : currentTxPuKeys) {
 						pubKeyToTx.put(pubkey, selectedSet);
 					}
 					if (found) {
 						groupedTxs.get(selectedSet).addAll(currentTxPuKeys);
-					} else  {
+					} else {
 						groupedTxs.add(currentTxPuKeys);
 					}
-				}				
+				}
 				// rs.close();
 				if (tx % 1000000 == 0)
 					showInfo(tx);
@@ -189,7 +191,7 @@ public class UserClustering1 extends HasParser {
 			Integer[] dbArr = (Integer[]) groupedTxs.get(i).toArray(new Integer[size]);
 			Array pubKeys = connection.createArrayOf("integer", dbArr);
 			if (size == 1)
-			tmp++;
+				tmp++;
 			insertStatement.setInt(1, i + 1);
 
 			insertStatement.setArray(2, pubKeys);
@@ -201,7 +203,7 @@ public class UserClustering1 extends HasParser {
 		}
 		System.out.println(tmp);
 		insertStatement.executeBatch();
-		
+
 	}
 
 	public void createEntityIndexTable() throws SQLException {
@@ -212,8 +214,8 @@ public class UserClustering1 extends HasParser {
 		for (int i = 0; i < groupedTxs.size(); i++) {
 			pubKeys = new HashSet<Integer>();
 			for (Integer pubKey : groupedTxs.get(i)) {
-				if (pubKey == 186 || pubKey ==10)
-				System.out.println(pubKey+","+i);
+				if (pubKey == 186 || pubKey == 10)
+					System.out.println(pubKey + "," + i);
 				insertStatement.setInt(1, i + 1);
 				insertStatement.setInt(2, pubKey);
 				insertStatement.addBatch();
@@ -224,25 +226,28 @@ public class UserClustering1 extends HasParser {
 		}
 		insertStatement.executeBatch();
 	}
-	
-	/**d
+
+	/**
+	 * d
+	 * 
 	 * @throws SQLException
 	 */
 	public void createUserEdgesTable() throws SQLException {
 		System.out.println("Creating User Edge table... Starting at " + new Date());
 		String sqlFindFromPubKey = "Select entity_index.entity_id from txout inner join txin on txout.txout_id = txin.txout_id  inner join entity_index on txout.pubkey_id = entity_index.pub_key where txin.tx_id = ? and txin.txout_id != 0 LIMIT 1 ";
-		String sqlFindToPubKey = "Select entity_index.entity_id from txout inner join entity_index on txout.pubkey_id = entity_index.pub_key where txout.tx_id = ? LIMIT 1 ";
+		String sqlFindToPubKey = "Select entity_index.entity_id from txout inner join entity_index on txout.pubkey_id = entity_index.pub_key where txout.tx_id = ? ";
 		String insertToUserEdges = "Insert into user_edge (id, from_user, to_user) values  (?, ?, ?)";
 		PreparedStatement fromStatement = connection.prepareStatement(sqlFindFromPubKey);
 		updateStatement = connection.prepareStatement(sqlFindToPubKey);
 		PreparedStatement insertStatement = connection.prepareStatement(insertToUserEdges);
 
-		//findBounds("tx", "tx_id");
+		// findBounds("tx", "tx_id");
 		Filters filter = new Filters();
-		HashSet<Integer> notNewGens = filter.eliminateCoinGens(maxTx/limit);
+		HashSet<Integer> notNewGens = filter.eliminateCoinGens(maxTx / limit);
 		int i = 0;
 		for (Integer tx : notNewGens) {
-			int from = 0, to = 0;
+			int from = 0;
+			ArrayList<Integer> to = new ArrayList<Integer>();
 			fromStatement.setInt(1, tx);
 			updateStatement.setInt(1, tx);
 			rs = fromStatement.executeQuery();
@@ -252,15 +257,17 @@ public class UserClustering1 extends HasParser {
 
 			rs = updateStatement.executeQuery();
 			while (rs.next()) {
-				to = rs.getInt(1);
+				to.add(rs.getInt(1));
 			}
 
-			if (from != 0){
-				insertStatement.setInt(1, tx);
-				insertStatement.setInt(2, from);
-				insertStatement.setInt(3, to);
-				insertStatement.addBatch();
-				if (i % (batchSize/100) == 0) {
+			if (from != 0) {
+				for (int k = 0; k < to.size(); k++) {
+					insertStatement.setInt(1, tx);
+					insertStatement.setInt(2, from);
+					insertStatement.setInt(3, to.get(k));
+					insertStatement.addBatch();
+				}
+				if (i % (batchSize / 100) == 0) {
 					addToDatabase(i, insertStatement);
 				}
 			}
@@ -268,29 +275,29 @@ public class UserClustering1 extends HasParser {
 		}
 		insertStatement.executeBatch();
 	}
-	
+
 	public void createUserEdgesTable2() throws SQLException {
-		System.out.println("Creating User Edge table... Max tx:"+ maxTx/limit +" Starting at " + new Date());
+		System.out.println("Creating User Edge table... Max tx:" + maxTx / limit + " Starting at " + new Date());
 		HashSet<Integer> txs = new HashSet<Integer>();
 		String sqlFindFromPubKey = "Select entity_index.entity_id, txin.tx_id from txout inner join txin on txout.txout_id = txin.txout_id  inner join entity_index on txout.pubkey_id = entity_index.pub_key where txin.tx_id <= ? and txin.txout_id != 0 ";
 		String sqlFindToPubKey = "Select entity_index.entity_id, txout.tx_id from txout inner join entity_index on txout.pubkey_id = entity_index.pub_key where txout.tx_id <= ? ";
 		String insertFromUserEdges = "Insert into user_edge (id, from_user) values  (?, ?) ";
 		String insertToUserEdges = "Update user_edge set to_user = ? where id = ? ";
-		
+
 		PreparedStatement fromStatement = connection.prepareStatement(sqlFindFromPubKey);
 		PreparedStatement toStatement = connection.prepareStatement(sqlFindToPubKey);
 		PreparedStatement insertFromStatement = connection.prepareStatement(insertFromUserEdges);
 		PreparedStatement insertToStatement = connection.prepareStatement(insertToUserEdges);
 
 		int from = 0, to = 0, tx = 0;
-		fromStatement.setInt(1, maxTx/limit);
-		toStatement.setInt(1, maxTx/limit);
-		
+		fromStatement.setInt(1, maxTx / limit);
+		toStatement.setInt(1, maxTx / limit);
+
 		rs = fromStatement.executeQuery();
 		while (rs.next()) {
 			tx = rs.getInt(2);
-			if(txs.add(tx)){
-				from = rs.getInt(1);		
+			if (txs.add(tx)) {
+				from = rs.getInt(1);
 				insertFromStatement.setInt(1, tx);
 				insertFromStatement.setInt(2, from);
 				insertFromStatement.addBatch();
@@ -305,10 +312,53 @@ public class UserClustering1 extends HasParser {
 			insertToStatement.setInt(2, tx);
 			insertToStatement.addBatch();
 		}
-		
+
 		insertFromStatement.executeBatch();
 		insertToStatement.executeBatch();
-}
+	}
+
+	/**
+	 * Like createUserEdgesTable3 but inserts user edge data in a different way 
+	 * @throws SQLException
+	 */
+	public void createUserEdgesTable3() throws SQLException {
+		System.out.println("Creating User Edge table... Max tx:" + maxTx / limit + " Starting at " + new Date());
+		
+		String sqlFindFromPubKey = "Select entity_index.entity_id, txin.tx_id from txout inner join txin on txout.txout_id = txin.txout_id  inner join entity_index on txout.pubkey_id = entity_index.pub_key where txin.tx_id <= ? and txin.txout_id != 0 ";
+		String sqlFindToPubKey = "Select entity_index.entity_id, txout.tx_id from txout inner join entity_index on txout.pubkey_id = entity_index.pub_key where txout.tx_id <= ? ";
+		String insertToUserEdges = "INSERT INTO user_edge (to_user, id) values (?, ?) ";
+		String insertFromUserEdges = "UPDATE user_edge  set from_user = ? where id = ? ";
+		
+		PreparedStatement fromStatement = connection.prepareStatement(sqlFindFromPubKey);
+		PreparedStatement toStatement = connection.prepareStatement(sqlFindToPubKey);
+		PreparedStatement insertFromStatement = connection.prepareStatement(insertFromUserEdges);
+		PreparedStatement insertToStatement = connection.prepareStatement(insertToUserEdges);
+
+		int from = 0, to = 0, tx = 0;
+		fromStatement.setInt(1, maxTx / limit);
+		toStatement.setInt(1, maxTx / limit);
+
+		rs = toStatement.executeQuery();
+		while (rs.next()) {
+			to = rs.getInt(1);
+			tx = rs.getInt(2);
+			insertToStatement.setInt(1, to);
+			insertToStatement.setInt(2, tx);
+			insertToStatement.addBatch();
+		}
+		
+		rs = fromStatement.executeQuery();
+		while (rs.next()) {
+			tx = rs.getInt(2);
+			from = rs.getInt(1);
+			insertFromStatement.setInt(1, from);
+			insertFromStatement.setInt(2, tx);
+			insertFromStatement.addBatch();		
+		}
+
+		insertToStatement.executeBatch();
+		insertFromStatement.executeBatch();
+	}
 
 	public void cluster() {
 		// String sql = "SELECT pubkey_id FROM txout WHERE tx_id = ?";
@@ -356,19 +406,20 @@ public class UserClustering1 extends HasParser {
 
 	public void findBounds(String table, String column) throws SQLException {
 		System.out.println(java.lang.Runtime.getRuntime().maxMemory());
-		connection = Database.get().connectPostgre();
+		connection = DBConnection.get().connectPostgre();
 		String stats = "select min(" + column + "), max(" + column + ") from " + table;
 		preparedStatement = connection.prepareStatement(stats);
 		ResultSet rs = preparedStatement.executeQuery();
 		while (rs.next()) {
 			minTx = rs.getInt(1);
 			maxTx = rs.getInt(2);
-			System.out.println("Scanning from " + minTx + " tx to " + maxTx/limit + " " + column + " from table " + table);
+			System.out.println("Scanning from " + minTx + " tx to " + maxTx / limit + " " + column + " from table "
+					+ table);
 		}
 	}
 
 	public void findInsertedTxs() throws SQLException {
-		connection = Database.get().connectPostgre();
+		connection = DBConnection.get().connectPostgre();
 		String stats = "select count(id) from " + entity;
 		preparedStatement = connection.prepareStatement(stats);
 		ResultSet rs = preparedStatement.executeQuery();
@@ -384,7 +435,7 @@ public class UserClustering1 extends HasParser {
 			// grouptTxsPubkeys();
 			// createEntityTable();
 			// createEntityIndexTable();
-			 createUserEdgesTable2();
+			createUserEdgesTable3();
 		} catch (SQLException e) {
 			e.printStackTrace();
 			System.out.println(e.getNextException());

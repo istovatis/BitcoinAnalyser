@@ -10,10 +10,13 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.Random;
 
+import database.DBInteraction;
+import database.Queries;
+
 import argo.jdom.JsonNode;
 import argo.jdom.JsonStringNode;
 
-public class Duplicates extends HasParser {
+public class Duplicates extends DBInteraction {
 	private final String file = "my_data/new_generated";
 	String selectTableSQL = Queries.duplicateTxHashes();
 
@@ -21,7 +24,7 @@ public class Duplicates extends HasParser {
 	public void readDataFile() {
 		try {
 			br = new BufferedReader(new InputStreamReader(new DataInputStream(
-					new FileInputStream(HasParser.path + file))));
+					new FileInputStream(DBInteraction.path + file))));
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

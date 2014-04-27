@@ -1,9 +1,11 @@
 package bitcointools;
+import java.sql.Connection;
 
-import clasiffier.BlockchainParser;
+import clasiffier.Donations;
 
-import abe.UserClustering.ShadowClustering;
-import abe.UserClustering.UserClustering1;
+import abe.Config;
+import abe.user_clustering.ShadowClustering;
+import abe.user_clustering.UserClustering1;
 
 
 public class BitcoinAnalyser {
@@ -25,8 +27,6 @@ public class BitcoinAnalyser {
 		
 		PublicKeyList publicKey = new PublicKeyList();
 		//publicKey.readDataFile();
-		
-		BlockchainParser blockchain = new BlockchainParser();
 		
 		UserKeyList userKeyList = new UserKeyList();
 		//userKeyList.readDataFile();
@@ -50,17 +50,11 @@ public class BitcoinAnalyser {
 		//removeNewGens.readDataFile();
 		
 		UserClustering1 userClustering1 = new UserClustering1();
-		//userClustering1.start();
+		userClustering1.start();
 		
 		ShadowClustering shadowClustering = new ShadowClustering();
 		//shadowClustering.start();
 		
-		try {
-			blockchain.homePage();
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 	}
 
 }

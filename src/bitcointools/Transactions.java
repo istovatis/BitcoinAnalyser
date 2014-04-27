@@ -28,10 +28,12 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import database.DBInteraction;
+
 import argo.jdom.JsonNode;
 import argo.jdom.JsonStringNode;
 
-public class Transactions extends HasParser {
+public class Transactions extends DBInteraction {
 	private final String file = "query_results/test";
 	private final static int totalParsed = 1000;
 	private static int NTHREDS = 2;

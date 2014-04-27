@@ -11,7 +11,13 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
 
-public class UserKeyList extends HasParser {
+import database.DBConnection;
+import database.DBInteraction;
+
+import abe.Config;
+
+
+public class UserKeyList extends DBInteraction {
 	// public keys that belong to the same user
 	private Integer[] keys;
 	//private ArrayList<Integer> keyList;
@@ -24,12 +30,12 @@ public class UserKeyList extends HasParser {
 	}
 	public void readDataFile() {
 		try {
-			connection = Database.get().connectPostgre();
+			connection = DBConnection.get().connectPostgre();
 			if(Config.isDBIntegration()){
 				emptyTable();
 			}
 			br = new BufferedReader(new InputStreamReader(
-					new DataInputStream(new FileInputStream(HasParser.path
+					new DataInputStream(new FileInputStream(DBInteraction.path
 							+ file))));
 			String insertTableSQL = "INSERT INTO " + table
 					+ "(key_number, public_keys) VALUES" + "(?,?)";

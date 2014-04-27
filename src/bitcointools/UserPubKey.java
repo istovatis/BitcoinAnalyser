@@ -6,7 +6,11 @@ import java.io.InputStreamReader;
 import java.sql.Statement;
 import java.sql.Connection;
 
-public class UserPubKey  extends HasParser implements User {
+import database.DBConnection;
+import database.DBInteraction;
+
+
+public class UserPubKey  extends DBInteraction implements User {
 	// Public keys used for input in "this" transaction
 	private int[] keys;
 	private final String file = "user_edge_input_public_keys.txt";
@@ -15,10 +19,10 @@ public class UserPubKey  extends HasParser implements User {
 
 	public void readDataFile() {
 		try {
-			connection = Database.get().connectPostgre();
+			connection = DBConnection.get().connectPostgre();
 			Statement st =connection.createStatement();
 			br = new BufferedReader(new InputStreamReader(
-					new DataInputStream(new FileInputStream(HasParser.path+file))));
+					new DataInputStream(new FileInputStream(DBInteraction.path+file))));
 			String strLine;
 
 			while ((strLine = br.readLine()) != null) {

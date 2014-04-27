@@ -6,10 +6,11 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
 
-import bitcointools.Database;
-import bitcointools.HasParser;
+import database.DBConnection;
+import database.DBInteraction;
 
-public class Filters extends HasParser{
+
+public class Filters extends DBInteraction{
 	private static HashSet<Integer> notCoinGenTx;
 	int minTx, maxTx;
 
@@ -21,7 +22,7 @@ public class Filters extends HasParser{
 	 */
 	public HashSet<Integer> eliminateCoinGens(int limit) {
 		notCoinGenTx = new HashSet<Integer>();
-		connection = Database.get().connectPostgre();
+		connection = DBConnection.get().connectPostgre();
 		String stats = "select tx_id from block_tx where tx_pos != 0 order by tx_id limit " + limit;
 		try {
 			preparedStatement = connection.prepareStatement(stats);
@@ -50,7 +51,7 @@ public class Filters extends HasParser{
 	 * @return	The set containing only two outputs
 	 */
 	public HashSet<Integer> eliminateOtherThanTwoOutputs(HashSet<Integer> txs){
-		connection = Database.get().connectPostgre();
+		connection = DBConnection.get().connectPostgre();
 		Iterator<Integer> it = txs.iterator();
 		int size = txs.size();
 		int i = 0;
@@ -76,7 +77,7 @@ public class Filters extends HasParser{
 	}
 	
 	public void findBounds(String table) {
-		connection = Database.get().connectPostgre();
+		connection = DBConnection.get().connectPostgre();
 		String stats = "select min(txout_id), max(txout_id) from " + table;
 		try {
 			preparedStatement = connection.prepareStatement(stats);

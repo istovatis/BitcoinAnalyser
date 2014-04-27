@@ -11,6 +11,12 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
 
+import database.DBConnection;
+import database.DBInteraction;
+
+import abe.Config;
+
+
 
 public class PublicKeyList extends Key{
 	// Identifier hash associated with nodes
@@ -25,12 +31,12 @@ public class PublicKeyList extends Key{
 	
 	public void readDataFile() {
 		try {
-			connection = Database.get().connectPostgre();
+			connection = DBConnection.get().connectPostgre();
 			if(Config.isDBIntegration()){
 				emptyTable();
 			}
 		    br = new BufferedReader(new InputStreamReader(
-					new DataInputStream(new FileInputStream(HasParser.path
+					new DataInputStream(new FileInputStream(DBInteraction.path
 							+ file))));
 			String insertTableSQL = "INSERT INTO "+table
 					+ "(id, text_key) VALUES" + "(?,?)";

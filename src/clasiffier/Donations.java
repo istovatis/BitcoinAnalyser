@@ -11,7 +11,8 @@ import java.util.PriorityQueue;
 import org.eclipse.jetty.util.MultiMap;
 import org.junit.Test;
 
-import bitcointools.Database;
+import parser.WebPageParser;
+
 
 import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.html.HtmlDivision;
@@ -23,6 +24,8 @@ import com.gargoylesoftware.htmlunit.html.HtmlTableRow;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 
+import database.DBConnection;
+
 /**
  * This is a blockChain.info parser. The aim of this parser is to get address,
  * tag and link of every tagged public key and finally the verification status
@@ -31,12 +34,13 @@ import com.google.common.collect.Multimap;
  * @author istovatis
  * 
  */
-public class BlockchainParser {
+public class Donations {
 
-	private static HashSet<BlockchainParser> tagList = new HashSet<BlockchainParser>();
+	private static HashSet<Donations> tagList = new HashSet<Donations>();
 	Multimap<String, String> mostTaged = ArrayListMultimap.create();
 
 	private final String blockChain = "https://blockchain.info/tags?offset=";	// the webpage
+	private String xpath = "//table[@class='table table-striped']";
 	private String address;		
 	private String tag;
 	private String link;
@@ -46,21 +50,16 @@ public class BlockchainParser {
 	private int numNotVerified;		//Number of not verified tags
 	private final static int offset = 200;
 	
-	@Test
-	public void homePage() throws Exception {
+	public void parserForDonations() throws Exception {
 		System.out.println("Starting finding donations from blockchain at "+new Date());
-		final WebClient webClient = new WebClient();
-		webClient.getOptions().setCssEnabled(false);
-		webClient.getOptions().setJavaScriptEnabled(false);
 		for (int range =0 ; range< 12; range++ ) {
-			final HtmlPage page = webClient.getPage(blockChain+offset*range);
-			List<?> list = page.getByXPath("//table[@class='table table-striped']");
+			List<?> list = WebPageParser.parseWebPage(blockChain+offset*range, xpath);
 			if (list.size() > 0) {
 				HtmlTable table = (HtmlTable) list.get(0);
 				for (int i = 1; i < table.getRowCount(); i++) {
 					final HtmlTableRow row = table.getRow(i);
 					int rowCell = 0;
-					BlockchainParser record = new BlockchainParser();
+					Donations record = new Donations();
 					for (final HtmlTableCell cell : row.getCells()) {
 						if (rowCell == 0) {		//get the address
 							record.address = cell.asText();
@@ -103,11 +102,9 @@ public class BlockchainParser {
 				System.out.println("Tag list not parsed from website");
 			}
 		}
-		
-		// showAllRecords();
+		//showAllRecords();
 		insertToDB();
 		showStats();
-		webClient.closeAllWindows();
 	}
 
 	public void showStats() {
@@ -120,7 +117,7 @@ public class BlockchainParser {
 	}
 
 	public void showAllRecords() {
-		for (BlockchainParser record : tagList) {
+		for (Donations record : tagList) {
 			System.out.println(record.address + " " + record.tag + " "
 					+ record.link + " " + record.verified);
 		}
@@ -131,13 +128,13 @@ public class BlockchainParser {
 	 * verified.
 	 */
 	public void insertToDB() {
-		String insertTableSQL = "INSERT INTO tags"
+		String insertTableSQL = "INSERT INTO donation"
 				+ "(address, tag, link, verified) VALUES" + "(?,?,?,?)";
-		Connection connection = Database.get().connectPostgre();
+		Connection connection = DBConnection.get().connectPostgre();
 		try {
 			PreparedStatement preparedStatement = connection
 					.prepareStatement(insertTableSQL);
-			for (BlockchainParser record : tagList) {
+			for (Donations record : tagList) {
 				System.out.println(record.address);
 				preparedStatement.setString(1, record.address);
 				preparedStatement.setString(2, record.tag);
