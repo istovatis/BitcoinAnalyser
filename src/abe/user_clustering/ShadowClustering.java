@@ -155,9 +155,26 @@ public class ShadowClustering extends DBInteraction {
 	public void start(){
 		Filters filter = new Filters();
 		filter.findBounds("txout");
-		HashSet<Integer> notNewGens = filter.eliminateCoinGens(filter.getMax());
+		HashSet<Integer> notNewGens = filter.eliminateCoinGensOrSameInOuts(filter.getMax());
 		HashSet<Integer> notNewGensOnlyTwoOutputs = filter.eliminateOtherThanTwoOutputs(notNewGens);
 		clusterTxs(notNewGensOnlyTwoOutputs);
+	}
+	
+	/**
+	 * Txs that are not new generated coins and containing at least one output that is also an input
+	 * @return
+	 */
+	public static String txWithSameInputsOutputs() {
+		return "SELECT distinct(at11.ole) FROM "
+				+ "(SELECT * FROM (SELECT txout.*, txin.tx_id as ole FROM txin INNER JOIN txout ON txout.txout_id = txin.txout_id where txin.txout_id is not null ) as at1) as at11 "
+				+ "INNER JOIN  txout ON at11.pubkey_id = txout.pubkey_id and txout.tx_id = at11.ole";
+	}
+	
+	public static String notNewGenNotOutputAtInput() {
+		return "SELECT tx_id from tx where tx_id not in"
+				+ " (SELECT distinct(at11.ole) FROM "
+				+ "(SELECT * FROM (SELECT txout.*, txin.tx_id as ole FROM txin INNER JOIN txout ON txout.txout_id = txin.txout_id) as at1) as at11 "
+				+ "INNER JOIN  txout ON at11.pubkey_id = txout.pubkey_id and txout.tx_id = at11.ole)";
 	}
 
 }

@@ -90,7 +90,7 @@ public class InputUserClustering extends DBInteraction {
 	 * @return
 	 * @throws SQLException
 	 */
-	public ArrayList<HashSet<Integer>> grouptTxsPubkeys() {
+	public ArrayList<HashSet<Integer>> groupTxsPubkeys() {
 		try {
 			System.out.println("Starting tx grouping of " + limit + "% at " + new Date());
 			Map<Integer, Integer> pubKeyToTx = new HashMap<Integer, Integer>();
@@ -214,8 +214,6 @@ public class InputUserClustering extends DBInteraction {
 		for (int i = 0; i < groupedTxs.size(); i++) {
 			pubKeys = new HashSet<Integer>();
 			for (Integer pubKey : groupedTxs.get(i)) {
-				if (pubKey == 186 || pubKey == 10)
-					System.out.println(pubKey + "," + i);
 				insertStatement.setInt(1, i + 1);
 				insertStatement.setInt(2, pubKey);
 				insertStatement.addBatch();
@@ -432,7 +430,7 @@ public class InputUserClustering extends DBInteraction {
 	public void start() {
 		try {
 			findBounds("txin", "txin_id");
-			// grouptTxsPubkeys();
+			// groupTxsPubkeys();
 			// createEntityTable();
 			// createEntityIndexTable();
 			createUserEdgesTable3();

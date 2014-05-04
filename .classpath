@@ -1,33 +1,32 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="src"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/java-7-openjdk-amd64"/>
-	<classpathentry kind="lib" path="/home/soloikos/workspace/libraries/commons-collections-3.2.1.jar"/>
-	<classpathentry kind="lib" path="/home/soloikos/workspace/libraries/rooster/lib/commons-codec-1.7.jar"/>
-	<classpathentry kind="lib" path="/home/soloikos/workspace/libraries/rooster/lib/commons-collections-3.2.1.jar"/>
-	<classpathentry kind="lib" path="/home/soloikos/workspace/libraries/rooster/lib/commons-io-2.4.jar"/>
-	<classpathentry kind="lib" path="/home/soloikos/workspace/libraries/rooster/lib/commons-lang3-3.1.jar"/>
-	<classpathentry kind="lib" path="/home/soloikos/workspace/libraries/rooster/lib/commons-logging-1.1.1.jar"/>
-	<classpathentry kind="lib" path="/home/soloikos/workspace/libraries/rooster/lib/cssparser-0.9.8.jar"/>
-	<classpathentry kind="lib" path="/home/soloikos/workspace/libraries/rooster/lib/htmlunit-2.11.jar"/>
-	<classpathentry kind="lib" path="/home/soloikos/workspace/libraries/rooster/lib/htmlunit-core-js-2.11.jar"/>
-	<classpathentry kind="lib" path="/home/soloikos/workspace/libraries/rooster/lib/httpclient-4.2.2.jar"/>
-	<classpathentry kind="lib" path="/home/soloikos/workspace/libraries/rooster/lib/httpcore-4.2.2.jar"/>
-	<classpathentry kind="lib" path="/home/soloikos/workspace/libraries/rooster/lib/httpmime-4.2.2.jar"/>
-	<classpathentry kind="lib" path="/home/soloikos/workspace/libraries/rooster/lib/jetty-http-8.1.7.v20120910.jar"/>
-	<classpathentry kind="lib" path="/home/soloikos/workspace/libraries/rooster/lib/jetty-io-8.1.7.v20120910.jar"/>
-	<classpathentry kind="lib" path="/home/soloikos/workspace/libraries/rooster/lib/jetty-util-8.1.7.v20120910.jar"/>
-	<classpathentry kind="lib" path="/home/soloikos/workspace/libraries/rooster/lib/jetty-websocket-8.1.7.v20120910.jar"/>
-	<classpathentry kind="lib" path="/home/soloikos/workspace/libraries/rooster/lib/nekohtml-1.9.17.jar"/>
-	<classpathentry kind="lib" path="/home/soloikos/workspace/libraries/rooster/lib/sac-1.3.jar"/>
-	<classpathentry kind="lib" path="/home/soloikos/workspace/libraries/rooster/lib/scribe-1.3.0.jar"/>
-	<classpathentry kind="lib" path="/home/soloikos/workspace/libraries/rooster/lib/serializer-2.7.1.jar"/>
-	<classpathentry kind="lib" path="/home/soloikos/workspace/libraries/rooster/lib/xalan-2.7.1.jar"/>
-	<classpathentry kind="lib" path="/home/soloikos/workspace/libraries/rooster/lib/xercesImpl-2.10.0.jar"/>
-	<classpathentry kind="lib" path="/home/soloikos/workspace/libraries/rooster/lib/xml-apis-1.4.01.jar"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
-	<classpathentry kind="lib" path="/home/soloikos/workspace/libraries/guava-15.0.jar"/>
-	<classpathentry kind="lib" path="/home/soloikos/workspace/libraries/postgresql-9.2-1003.jdbc4.jar"/>
-	<classpathentry kind="lib" path="/home/soloikos/workspace/libraries/argo-3.7.jar"/>
+	<classpathentry exported="true" kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="/home/user/bitcoin libs/argo-3.7.jar"/>
+	<classpathentry kind="lib" path="/home/user/bitcoin libs/guava-15.0.jar"/>
+	<classpathentry kind="lib" path="/home/user/bitcoin libs/postgresql-9.2-1003.jdbc4.jar"/>
+	<classpathentry kind="lib" path="/home/user/bitcoin libs/scrapper/commons-codec-1.7.jar"/>
+	<classpathentry kind="lib" path="/home/user/bitcoin libs/scrapper/commons-collections-3.2.1.jar"/>
+	<classpathentry kind="lib" path="/home/user/bitcoin libs/scrapper/commons-io-2.4.jar"/>
+	<classpathentry kind="lib" path="/home/user/bitcoin libs/scrapper/commons-lang3-3.1.jar"/>
+	<classpathentry kind="lib" path="/home/user/bitcoin libs/scrapper/commons-logging-1.1.1.jar"/>
+	<classpathentry kind="lib" path="/home/user/bitcoin libs/scrapper/cssparser-0.9.8.jar"/>
+	<classpathentry kind="lib" path="/home/user/bitcoin libs/scrapper/htmlunit-2.11.jar"/>
+	<classpathentry kind="lib" path="/home/user/bitcoin libs/scrapper/htmlunit-core-js-2.11.jar"/>
+	<classpathentry kind="lib" path="/home/user/bitcoin libs/scrapper/httpclient-4.2.2.jar"/>
+	<classpathentry kind="lib" path="/home/user/bitcoin libs/scrapper/httpcore-4.2.2.jar"/>
+	<classpathentry kind="lib" path="/home/user/bitcoin libs/scrapper/httpmime-4.2.2.jar"/>
+	<classpathentry kind="lib" path="/home/user/bitcoin libs/scrapper/jetty-http-8.1.7.v20120910.jar"/>
+	<classpathentry kind="lib" path="/home/user/bitcoin libs/scrapper/jetty-io-8.1.7.v20120910.jar"/>
+	<classpathentry kind="lib" path="/home/user/bitcoin libs/scrapper/jetty-util-8.1.7.v20120910.jar"/>
+	<classpathentry kind="lib" path="/home/user/bitcoin libs/scrapper/jetty-websocket-8.1.7.v20120910.jar"/>
+	<classpathentry kind="lib" path="/home/user/bitcoin libs/scrapper/nekohtml-1.9.17.jar"/>
+	<classpathentry kind="lib" path="/home/user/bitcoin libs/scrapper/sac-1.3.jar"/>
+	<classpathentry kind="lib" path="/home/user/bitcoin libs/scrapper/scribe-1.3.0.jar"/>
+	<classpathentry kind="lib" path="/home/user/bitcoin libs/scrapper/serializer-2.7.1.jar"/>
+	<classpathentry kind="lib" path="/home/user/bitcoin libs/scrapper/xalan-2.7.1.jar"/>
+	<classpathentry kind="lib" path="/home/user/bitcoin libs/scrapper/xercesImpl-2.10.0.jar"/>
+	<classpathentry kind="lib" path="/home/user/bitcoin libs/scrapper/xml-apis-1.4.01.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

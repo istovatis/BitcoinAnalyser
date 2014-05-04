@@ -5,7 +5,7 @@ import clasiffier.Donations;
 
 import abe.Config;
 import abe.user_clustering.ShadowClustering;
-import abe.user_clustering.UserClustering1;
+import abe.user_clustering.InputUserClustering;
 
 
 public class BitcoinAnalyser {
@@ -49,7 +49,7 @@ public class BitcoinAnalyser {
 		RemoveNewGens removeNewGens = new RemoveNewGens();
 		//removeNewGens.readDataFile();
 		
-		UserClustering1 userClustering1 = new UserClustering1();
+		InputUserClustering userClustering1 = new InputUserClustering();
 		userClustering1.start();
 		
 		ShadowClustering shadowClustering = new ShadowClustering();

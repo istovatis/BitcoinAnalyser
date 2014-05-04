@@ -6,6 +6,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
 
+import abe.user_clustering.ShadowClustering;
 import database.DBConnection;
 import database.DBInteraction;
 
@@ -42,6 +43,37 @@ public class Filters extends DBInteraction{
 				}
 		}
 		System.out.println(notCoinGenTx.size() + " Transactions that are not coin generations loaded");
+		return notCoinGenTx;
+	}
+	
+	/**
+	 * Find txs that are not coin generations and not containing at least one output that is also an input.
+	 * 
+	 * @param table
+	 * @return 
+	 */
+	public HashSet<Integer> eliminateCoinGensOrSameInOuts(int limit) {
+		notCoinGenTx = new HashSet<Integer>();
+		connection = DBConnection.get().connectPostgre();
+		String stats = ShadowClustering.notNewGenNotOutputAtInput() + " limit " + limit;
+		try {
+			preparedStatement = connection.prepareStatement(stats);
+			ResultSet rs = preparedStatement.executeQuery();
+			while (rs.next()) {
+				notCoinGenTx.add(rs.getInt(1));
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		finally {
+			if (connection != null)
+				try {
+					connection.close();
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+		}
+		System.out.println(notCoinGenTx.size() + " Transactions that are not coin generations and not containing at least one output that is also an input loaded");
 		return notCoinGenTx;
 	}
 	
