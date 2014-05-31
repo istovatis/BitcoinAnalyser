@@ -18,6 +18,11 @@ public class ConvertAddressToHash160WithParser {
 	private final static String page = "https://blockchain.info/q/addresstohash/";
 	
 	public static String convertAddressToHash160(String address) {
+		try {
+		    Thread.sleep(500);
+		} catch(InterruptedException ex) {
+		    Thread.currentThread().interrupt();
+		}
 		return WebPageParser.parseWholeTextPage(page+address);
 	}
 	

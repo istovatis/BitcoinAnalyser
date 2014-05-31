@@ -22,7 +22,8 @@ public class ClassifierDBManager extends Key{
 	
 		private Connection connection;
 		public ClassifierDBManager(){
-			table = "entity_index";
+			table = "light_entity_index";
+			batchSize = 50;
 		}
 		
 		public void readDataFile() {
@@ -57,10 +58,10 @@ public class ClassifierDBManager extends Key{
 		}
 		
 		public void insertToDB(Cluster cluster){
-			if (ListAddress.isComplexCluster())
-				insertSimpleCLusterToDB(cluster);
+			if (ListAddress.isComplexCluster())	
+				insertComplexClusterToDB(cluster);
 			else
-				insertComplexClusterToDB(cluster);					
+				insertSimpleCLusterToDB(cluster);					
 		}
 		
 		public void insertSimpleCLusterToDB(Cluster cluster){
@@ -98,7 +99,7 @@ public class ClassifierDBManager extends Key{
 						.prepareStatement(insertTableSQL);
 				int rows = 0;
 				for (ListAddress addr : ListManager.getListAddresses()) {
-					preparedStatement.setString(1, addr.getValue());
+					preparedStatement.setString(1, (addr.getValue() != null ? addr.getValue() : "none"));
 					preparedStatement.setInt(2, addr.getId());		
 					preparedStatement.addBatch();
 					if (rows % batchSize == 0) {

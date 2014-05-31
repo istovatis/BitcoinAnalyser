@@ -18,16 +18,16 @@ public class Classifier {
 	
 	public static boolean classify(String classy) {
 		for (Cluster cluster : ListAddress.Cluster.values()) {
+			if(classy.equals("donation"))
+				return startDonationParser();
+			if(classy.equals("miningPool"))
+				return startMiningPool();
 			if (classy.equals(cluster.name())) {
 				ClassifierDBManager clusterManager = new ClassifierDBManager();
 				List<Integer> listIds = clusterManager.getIdsFromHashes(ManagerRunner(cluster));
 				clusterManager.insertToDB(cluster);
 				return true;
 			}
-			if(classy.equals("donation"))
-				return startDonationParser();
-			if(classy.equals("miningPool"))
-				return startMiningPool();
 		}
 		return false;
 	}

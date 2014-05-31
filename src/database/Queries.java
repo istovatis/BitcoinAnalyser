@@ -67,5 +67,9 @@ public class Queries {
 	public static String outputAddressHashes() {
 		return "SELECT * FROM txout where tx_id in (select txin.tx_id from txin  inner join txout on txin.txout_id = txout.txout_id inner join pubkey on txout.pubkey_id = pubkey.pubkey_id where  txout.pubkey_id = ?)";
 	}	
+	
+	public static String setTxoutPosToAdvanceIndex() {
+		return "update advance_shadow set txout_pos = txout.txout_pos from txout where advance_shadow.pubkey_id = txout.pubkey_id";
+	}
 
 }

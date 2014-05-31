@@ -92,6 +92,32 @@ public class DBDataReceiver extends DBInteraction {
 		
 		return records;
 	}
+	
+	public static Integer count(String field, String table, boolean isDistinct) {
+		String select = "SELECT count(" + (isDistinct ? "distinct" : "") +  "(" + field + ")) " + " FROM " + table;
+		int count = 0;
+		try {
+			preparedStatement = connection.prepareStatement(select);
+			ResultSet rs = preparedStatement.executeQuery();
+			while (rs.next()) {
+				count = rs.getInt(1);
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+			System.out.println(e.getNextException());
+		}
+		
+		finally {
+			if (preparedStatement != null) {
+				try {
+					preparedStatement.close();
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+			}
+		}	
+		return count;
+	}
 
 	@Override
 	public void readDataFile() {

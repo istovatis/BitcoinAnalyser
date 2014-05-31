@@ -10,7 +10,7 @@ import java.util.Date;
 public abstract class DBInteraction {
 	protected String table;
 	protected String duplicateTable;
-	public final static int batchSize = 500000;
+	public static int batchSize = 500000;
 	protected static PreparedStatement preparedStatement;
 	protected static PreparedStatement duplicateStatement;  // Statement for dublicate data
 	protected static Connection connection = DBConnection.get().connectPostgre();
