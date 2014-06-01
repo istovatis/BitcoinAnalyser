@@ -19,8 +19,6 @@ import database.Queries;
 import abe.Filters;
 
 public class InputUserClustering extends DBInteraction {
-	int minTx;
-	int maxTx;
 	private Map<Integer, Integer> pubKeyToTx;
 	ArrayList<HashSet<Integer>> groupedTxs;
 	HashSet<Integer> addedTxs;
@@ -32,6 +30,7 @@ public class InputUserClustering extends DBInteraction {
 	int entityId = 0;
 	PreparedStatement updateStatement;
 	final static int limit = 1;
+	DBDataReceiver bounds = new DBDataReceiver();
 
 	public InputUserClustering() {
 		table = "entity";
@@ -52,7 +51,7 @@ public class InputUserClustering extends DBInteraction {
 
 			preparedStatement = connection.prepareStatement(sql);
 
-			for (int currentTxin = minTx; currentTxin < maxTx / limit; currentTxin++) {
+			for (int currentTxin = bounds.getMinTx(); currentTxin < bounds.getMaxTx() / limit; currentTxin++) {
 				preparedStatement.setInt(1, currentTxin);
 				rs = preparedStatement.executeQuery();
 
@@ -99,7 +98,7 @@ public class InputUserClustering extends DBInteraction {
 			preparedStatement = connection.prepareStatement(Queries
 					.pubkeysIdOfTxInputs());
 			// pubkeys of txins that exist at the current tx
-			for (int tx = minTx; tx < maxTx / limit; tx++) {
+			for (int tx = bounds.getMinTx(); tx < bounds.getMaxTx() / limit; tx++) {
 				preparedStatement.setInt(1, tx);
 				rs = preparedStatement.executeQuery();
 				boolean found = false;
@@ -154,7 +153,7 @@ public class InputUserClustering extends DBInteraction {
 			preparedStatement = connection.prepareStatement(Queries
 					.pubkeysIdOfTxInputs());
 			// pubkeys of txins that exist at the current tx
-			for (int tx = minTx; tx < maxTx / limit; tx++) {
+			for (int tx = bounds.getMinTx(); tx < bounds.getMaxTx() / limit; tx++) {
 				preparedStatement.setInt(1, tx);
 				rs = preparedStatement.executeQuery();
 				boolean found = false;
@@ -207,8 +206,8 @@ public class InputUserClustering extends DBInteraction {
 		preparedStatement = connection.prepareStatement(insertTableSQL);
 		updateStatement = connection.prepareStatement(updateTableSQL);
 		System.out.println("clusterTxsFinal: Scanning from " + numInsertedTxs
-				+ " to " + maxTx / limit);
-		for (int i = numInsertedTxs; i <= maxTx; i++) {
+				+ " to " + bounds.getMaxTx() / limit);
+		for (int i = numInsertedTxs; i <= bounds.getMaxTx(); i++) {
 			String sqlIndex = "SELECT id FROM entity WHERE " + i
 					+ "= any(tx_ids) LIMIT 1";
 			rs = stIndex.executeQuery(sqlIndex);
@@ -228,7 +227,7 @@ public class InputUserClustering extends DBInteraction {
 				}
 			}
 		}
-		System.out.println("Inserted " + (maxTx - numInsertedTxs + 1)
+		System.out.println("Inserted " + (bounds.getMaxTx() - numInsertedTxs + 1)
 				+ " entities successfully!");
 	}
 
@@ -396,7 +395,7 @@ public class InputUserClustering extends DBInteraction {
 
 		// findBounds("tx", "tx_id");
 		Filters filter = new Filters();
-		HashSet<Integer> notNewGens = filter.eliminateCoinGens(maxTx / limit);
+		HashSet<Integer> notNewGens = filter.eliminateCoinGens(bounds.getMaxTx() / limit);
 		int i = 0;
 		for (Integer tx : notNewGens) {
 			int from = 0;
@@ -430,7 +429,7 @@ public class InputUserClustering extends DBInteraction {
 	}
 
 	public void createUserEdgesTable2() throws SQLException {
-		System.out.println("Creating User Edge table... Max tx:" + maxTx
+		System.out.println("Creating User Edge table... Max tx:" + bounds.getMaxTx()
 				/ limit + " Starting at " + new Date());
 		HashSet<Integer> txs = new HashSet<Integer>();
 		String sqlFindFromPubKey = "Select entity_index.entity_id, txin.tx_id from txout inner join txin on txout.txout_id = txin.txout_id  inner join entity_index on txout.pubkey_id = entity_index.pub_key where txin.tx_id <= ? and txin.txout_id != 0 ";
@@ -448,8 +447,8 @@ public class InputUserClustering extends DBInteraction {
 				.prepareStatement(insertToUserEdges);
 
 		int from = 0, to = 0, tx = 0;
-		fromStatement.setInt(1, maxTx / limit);
-		toStatement.setInt(1, maxTx / limit);
+		fromStatement.setInt(1, bounds.getMaxTx() / limit);
+		toStatement.setInt(1, bounds.getMaxTx() / limit);
 
 		rs = fromStatement.executeQuery();
 		while (rs.next()) {
@@ -481,7 +480,7 @@ public class InputUserClustering extends DBInteraction {
 	 * @throws SQLException
 	 */
 	public void createUserEdgesTable3() throws SQLException {
-		System.out.println("Creating User Edge table... Max tx:" + maxTx
+		System.out.println("Creating User Edge table... Max tx:" + bounds.getMaxTx()
 				/ limit + " Starting at " + new Date());
 
 		String sqlFindFromPubKey = "Select c.entity_id, b.tx_id from txout a inner join txin b on a.txout_id = b.txout_id  inner join light_entity_index c on a.pubkey_id = c.pub_key where a.tx_id > ? and a.tx_id <= ? and b.txout_id != 0 ";
@@ -495,7 +494,7 @@ public class InputUserClustering extends DBInteraction {
 		PreparedStatement insertToStatement = connection.prepareStatement(insertToUserEdges);
 		int interval = 100;
 		int minBound = 0;
-		int divs = maxTx / interval;
+		int divs = bounds.getMaxTx() / interval;
 		int maxBound = divs;
 		for (int i=0; i<= interval; i++) {
 			int from = 0, to = 0, tx = 0;
@@ -542,7 +541,7 @@ public class InputUserClustering extends DBInteraction {
 			// PreparedStatement stSelect = connection.prepareStatement(sql);
 			Statement stSelect = connection.createStatement();
 			preparedStatement = connection.prepareStatement(appendTx);
-			for (int i = minTx; i < 5; i++) {
+			for (int i = bounds.getMinTx(); i < 5; i++) {
 				String sql = "SELECT pubkey_id FROM txout WHERE tx_id = " + i;
 				ResultSet rs = stSelect.executeQuery(sql);
 				// stSelect.setInt(1, i);
@@ -575,21 +574,6 @@ public class InputUserClustering extends DBInteraction {
 
 	@Override
 	public void readDataFile() {}
-
-	public void findBounds(String table, String column) throws SQLException {
-		System.out.println(java.lang.Runtime.getRuntime().maxMemory());
-		connection = DBConnection.get().connectPostgre();
-		String stats = "select min(" + column + "), max(" + column + ") from "
-				+ table;
-		preparedStatement = connection.prepareStatement(stats);
-		ResultSet rs = preparedStatement.executeQuery();
-		while (rs.next()) {
-			minTx = rs.getInt(1);
-			maxTx = rs.getInt(2);
-			System.out.println("Scanning from " + minTx + " tx to " + maxTx
-					/ limit + " " + column + " from table " + table);
-		}
-	}
 
 	public void findInsertedTxs() throws SQLException {
 		connection = DBConnection.get().connectPostgre();
@@ -626,7 +610,7 @@ public class InputUserClustering extends DBInteraction {
 
 	public void start() {
 		try {
-			findBounds("txin", "txin_id");
+			bounds.findBounds("txin", "txin_id");
 			// lightGroupTxsPubkeys();
 			// createEntityTable();
 			// lightCreateEntityIndexTable();
