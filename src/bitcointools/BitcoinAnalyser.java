@@ -2,8 +2,8 @@ package bitcointools;
 import java.sql.Connection;
 
 import clasiffier.Donations;
-
 import abe.Config;
+import abe.analyser.Appearance;
 import abe.user_clustering.ShadowClustering;
 import abe.user_clustering.InputUserClustering;
 
@@ -50,7 +50,10 @@ public class BitcoinAnalyser {
 		//removeNewGens.readDataFile();
 		
 		InputUserClustering userClustering1 = new InputUserClustering();
-		userClustering1.start();
+		//userClustering1.start();
+		
+		Appearance app = new Appearance();
+		app.start();
 		
 		ShadowClustering shadowClustering = new ShadowClustering();
 		//shadowClustering.start();
