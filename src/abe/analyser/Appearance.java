@@ -20,7 +20,7 @@ public class Appearance extends DBDataReceiver {
 	public void pkAppearFound() {
 		findBounds("pubkey", "pubkey_id");
 		for (int pk = 0; pk< maxTx; pk++) {
-			String select = "SELECT a.tx_id as ins, b.tx_id as outs  FROM txin a INNER JOIN txout b ON a.txout_id = b.txout_id ";
+			String select = "SELECT a.tx_id as ins, b.tx_id as outs  FROM txin a INNER JOIN txout b ON a.txout_id = b.txout_id where pubkey_id =  " + pk;
 			try {
 				preparedStatement = connection.prepareStatement(select);
 				ResultSet rs = preparedStatement.executeQuery();
