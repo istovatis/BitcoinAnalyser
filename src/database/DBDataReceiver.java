@@ -161,6 +161,33 @@ public class DBDataReceiver extends DBInteraction {
 
 		return records;
 	}
+	
+	public static List<?> selectTwoFieldsQuery(String select) {
+		ArrayList<Integer> records = new ArrayList<Integer>();
+		try {
+			preparedStatement = connection.prepareStatement(select);
+			ResultSet rs = preparedStatement.executeQuery();
+			while (rs.next()) {
+				records.add(rs.getInt(1));
+				records.add(rs.getInt(2));
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+			System.out.println(e.getNextException());
+		}
+
+		finally {
+			if (preparedStatement != null) {
+				try {
+					preparedStatement.close();
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+
+		return records;
+	}
 
 	public void findBounds(String table, String column) {
 		System.out.println(java.lang.Runtime.getRuntime().maxMemory());

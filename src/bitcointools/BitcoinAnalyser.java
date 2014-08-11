@@ -3,9 +3,10 @@ import java.sql.Connection;
 
 import clasiffier.Donations;
 import abe.Config;
-import abe.analyser.Appearance;
+import abe.analyser.SavingAccounts;
 import abe.user_clustering.ShadowClustering;
 import abe.user_clustering.InputUserClustering;
+import abe.user_clustering.UserEdge;
 
 
 public class BitcoinAnalyser {
@@ -18,8 +19,8 @@ public class BitcoinAnalyser {
 		Config.setDBIntegration(true);
 		Config.setDublicatesIntegration(false);
 		
-		UserEdges userEdges = new UserEdges();
-		//userEdges.readDataFile();
+		UserEdge userEdge = new UserEdge();
+		//userEdge.readDataFile();
 		//userEdges.matchTxsWithHashes();
 		//userEdges.addNewLine();
 		//userEdges.seperateFiles();
@@ -52,8 +53,7 @@ public class BitcoinAnalyser {
 		InputUserClustering userClustering1 = new InputUserClustering();
 		//userClustering1.start();
 		
-		Appearance app = new Appearance();
-		app.start();
+		SavingAccounts.start();
 		
 		ShadowClustering shadowClustering = new ShadowClustering();
 		//shadowClustering.start();

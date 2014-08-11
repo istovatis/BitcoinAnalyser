@@ -1,7 +1,9 @@
+
 package abe.analyser;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -19,38 +21,51 @@ public class Appearance extends DBDataReceiver {
 	 */
 	public void pkAppearFound() {
 		findBounds("pubkey", "pubkey_id");
-		for (int pk = 0; pk< maxTx; pk++) {
-			String select = "SELECT a.tx_id as ins, b.tx_id as outs  FROM txin a INNER JOIN txout b ON a.txout_id = b.txout_id ";
-			try {
-				preparedStatement = connection.prepareStatement(select);
-				ResultSet rs = preparedStatement.executeQuery();
-				insAndOuts = new HashSet();
-				while (rs.next()) {
-					insAndOuts.add(rs.getInt(1));
-					insAndOuts.add(rs.getInt(2));
+		int pk = 0;
+		int newPk = 0;
+		String select = "SELECT a.tx_id as ins, b.tx_id as outs, b.pubkey_id  FROM txout b LEFT JOIN txin a ON a.txout_id = b.txout_id WHERE pubkey_id > 10000000 and pubkey_id <= " + maxTx + " order by pubkey_id ";
+		try {
+			preparedStatement = connection.prepareStatement(select);
+			ResultSet rs = preparedStatement.executeQuery();
+			insAndOuts = new HashSet();
+			while (rs.next()) {
+				newPk = rs.getInt(3);
+				if (pk != newPk) {
+					pubKeyToFound.put(pk, insAndOuts.size());
+					insAndOuts = new HashSet();
+					pk = newPk;
+					if (pk % 1000000 == 0)
+						System.out.println(pk + " public keys scanned at " + new Date());
 				}
-				pubKeyToFound.put(pk, insAndOuts.size());
-			} catch (SQLException e) {
-				e.printStackTrace();
-				System.out.println(e.getNextException());
+				int ins = rs.getInt(1);
+				int outs = rs.getInt(2);
+				if(ins != 0)
+					insAndOuts.add(ins);
+				if(outs != 0)
+					insAndOuts.add(outs);
 			}
-			
-			finally {
-				if (preparedStatement != null) {
-					try {
-						preparedStatement.close();
-					} catch (SQLException e) {
-						e.printStackTrace();
-					}
-				}
-			}	
+		} catch (SQLException e) {
+			e.printStackTrace();
+			System.out.println(e.getNextException());
 		}
+		finally {
+			if (preparedStatement != null) {
+				try {
+					preparedStatement.close();
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+			}
+		}	
 	}
 	
 	public void fixPkFound() {
+		System.out.println(" Starting fixing found field at " + new Date());
 		for (Map.Entry<Integer, Integer> entry : pubKeyToFound.entrySet()) {
 			Integer key = entry.getKey();
 			Integer value = entry.getValue();
+			if (key % 1000000 == 0)
+				System.out.println(key + " found field updates at " + new Date());
 			DBDataUpdater.updateInteger("pk_appear", "found", value, "pubkey_id = " + key);
 		}
 	}
