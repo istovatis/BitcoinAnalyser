@@ -4,25 +4,22 @@ import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import abe.Config;
 import database.DBInteraction;
 
-/**
- * User edge maps all transactions with their sender and receivers.
- * The value of transaction is also saved.
- *
- */
 public class UserEdge extends DBInteraction {
 	
-	private final String file = "fix_user_edge2";
+	private final String file = "fix_user_edge2.csv";
 	private int line;
 	private Integer tx_id;
 	private Integer entity_id;
 	
 	public UserEdge() {
 		table = "user_edge";
-		batchSize = 1000;
+		batchSize = 10000;
 	}
 	@Override
 	public void readDataFile() {
@@ -57,6 +54,7 @@ public class UserEdge extends DBInteraction {
 			e.printStackTrace();
 			System.out.println(e.getMessage());
 		}
+		
 	}
 	
 }
