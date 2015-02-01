@@ -7,6 +7,11 @@ import java.sql.SQLException;
 import java.util.Date;
 
 
+/**
+ * Basic DB interaction layer
+ * @author istovatis
+ *
+ */
 public abstract class DBInteraction {
 	protected String table;
 	protected String duplicateTable;
@@ -15,10 +20,7 @@ public abstract class DBInteraction {
 	protected static PreparedStatement duplicateStatement;  // Statement for dublicate data
 	protected static Connection connection = DBConnection.get().connectPostgre();
 	protected static BufferedReader br; // BufferReader for file parsing
-//	final static String path = System.getProperty("user.home")
-//			+ File.separator
-//			+ "Dropbox/development/bitcoin/bitcoin_uic_data_and_code_20130107/bitcoin_network_blockchain_215529/";
-	//final static String path = File.separator+ "media/soloikos/723D3C603F1AF96D/development/bitcoin/bitcoin_uic_data_and_code_20130410/";
+
 	protected final static String path = System.getProperty("user.home")+File.separator+"bitcoin"+File.separator;
 	// System.getProperty("user.dir")+File.separator;
 	public DBInteraction() {

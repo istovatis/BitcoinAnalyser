@@ -38,6 +38,14 @@ public class WebPageParser {
 		return list;
 	}
 	
+	private static void wait(int milliseconds) {
+		try {
+		    Thread.sleep(milliseconds);                
+		} catch(InterruptedException ex) {
+		    Thread.currentThread().interrupt();
+		}
+	}
+	
 	public static String parseWholeTextPage(String webPage) {
 		final WebClient webClient = new WebClient();
 		webClient.getOptions().setCssEnabled(false);
@@ -46,6 +54,7 @@ public class WebPageParser {
 		try {
 			page = webClient.getPage(webPage);
 		} catch (FailingHttpStatusCodeException e) {
+			wait(2000);
 			e.printStackTrace();
 		} catch (MalformedURLException e) {
 			e.printStackTrace();
@@ -53,7 +62,8 @@ public class WebPageParser {
 			e.printStackTrace();
 		}
 		webClient.closeAllWindows();
-		return page.getContent();
+		
+		return page != null ? page.getContent() : null;
 	}
 	
 }

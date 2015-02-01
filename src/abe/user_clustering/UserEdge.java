@@ -4,12 +4,15 @@ import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import abe.Config;
 import database.DBInteraction;
 
+/**
+ * User edge maps all transactions with their sender and receivers.
+ * The value of transaction is also saved.
+ *
+ */
 public class UserEdge extends DBInteraction {
 	
 	private final String file = "fix_user_edge2";
@@ -54,7 +57,6 @@ public class UserEdge extends DBInteraction {
 			e.printStackTrace();
 			System.out.println(e.getMessage());
 		}
-		//update user_edge2 set from_user = 19177169 where id = 7629569
 	}
 	
 }

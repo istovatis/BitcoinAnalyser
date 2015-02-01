@@ -1,21 +1,25 @@
 package database;
 
+/**
+ * Useful predefined queries.
+ *
+ */
 public class Queries {
 
 	private static String sql;
 
 	public static String duplicateTxHashes() {
-		// select distinct( transactionkey_list.transaction_key_string) from
-		// user_edge_inputs inner join user_edges_duplicates on
-		// user_edges_duplicates.transaction_key =
-		// user_edge_inputs.transaction_key inner join transactionkey_list on
-		// transactionkey_list.id = user_edge_inputs.line
-		sql = "select transaction_key_string from transactionkey_list inner join user_edges_duplicates on user_edges_duplicates.line = transactionkey_list.id";
+		sql = "SELECT transaction_key_string "
+				+ " FROM transactionkey_list "
+				+ " INNER JOIN user_edges_duplicates ON"
+				+ " user_edges_duplicates.line = transactionkey_list.id";
 		return sql;
 	}
 
 	public static String getTxHashString(Integer id) {
-		sql = "SELECT transaction_key_string FROM transactionkey_list WHERE id = " + id;
+		sql = "SELECT transaction_key_string "
+			+ " FROM transactionkey_list "
+			+ " WHERE id = " + id;
 		return sql;
 	}
 
@@ -26,24 +30,25 @@ public class Queries {
 	 * @return
 	 */
 	public static String getTagPubKeys(String tag) {
-		// extra: show lines
-		// sql =
-		// "select tags.tag, userkey_list.public_keys, array_length(userkey_list.public_keys, 1) as length from tags inner join pubkey_list on tags.address = pubkey_list.text_key and tags.tag like '"+tag+"%'+ inner join userkey_list on userkey_list.key_number = pubkey_list.id";
-		sql = "select tags.tag, userkey_list.public_keys from tags inner join pubkey_list on tags.address = pubkey_list.text_key and tags.tag like '"
-				+ tag + "%'+ inner join userkey_list on userkey_list.key_number = pubkey_list.id";
+		sql = "SELECT tags.tag, userkey_list.public_keys "
+			+ " FROM tags "
+			+ " INNER JOIN pubkey_list "
+			+ " ON tags.address = pubkey_list.text_key AND"
+			+ " tags.tag like '"
+			+ tag + "%'+ INNER JOIN userkey_list ON userkey_list.key_number = pubkey_list.id";
 		return sql;
 	}
 
 	public static String selectAllTxIDs() {
-		return "SELECT txout.txout_pubkey_id from tx inner join txout where tx.tx";
+		return "SELECT txout.txout_pubkey_id FROM tx inner join txout where tx.tx";
 	}
 
 	public static String maxEntityLength() {
-		return "SELECT max(array_length(pub_keys, 1)) FROM entity";
+		return "SELECT MAX(array_length(pub_keys, 1)) FROM entity";
 	}
 
 	public static String avgEntityLength() {
-		return "SELECT avg(array_length(pub_keys, 1)) FROM entity";
+		return "SELECT AVG(array_length(pub_keys, 1)) FROM entity";
 	}
 
 	/**
@@ -52,7 +57,12 @@ public class Queries {
 	 * @return
 	 */
 	public static String pubkeyHashOfTxInputs() {
-		return "SELECT pubkey.pubkey_hash FROM txin  Inner Join txout On txin.txout_id = txout.txout_id Inner Join pubkey On txout.pubkey_id = pubkey.pubkey_id Where  txin.tx_id = ?";
+		return "SELECT pubkey.pubkey_hash "
+			+ " FROM txin "
+			+ " INNER JOIN txout "
+			+ " ON txin.txout_id = txout.txout_id "
+			+ " INNER JOIN pubkey ON txout.pubkey_id = pubkey.pubkey_id "
+			+ " WHERE  txin.tx_id = ?";
 	}
 	
 	/**
@@ -61,15 +71,27 @@ public class Queries {
 	 * @return
 	 */
 	public static String pubkeysIdOfTxInputs() {
-		return " SELECT txout.pubkey_id FROM txin LEFT JOIN txout ON (txout.txout_id = txin.txout_id) WHERE txin.tx_id = ?  ";
+		return " SELECT txout.pubkey_id "
+			+ " FROM txin LEFT JOIN txout ON ("
+			+ " txout.txout_id = txin.txout_id) "
+			+ "WHERE txin.tx_id = ?  ";
 	}
 
 	public static String outputAddressHashes() {
-		return "SELECT * FROM txout where tx_id in (select txin.tx_id from txin  inner join txout on txin.txout_id = txout.txout_id inner join pubkey on txout.pubkey_id = pubkey.pubkey_id where  txout.pubkey_id = ?)";
+		return "SELECT * "
+			+ " FROM txout "
+			+ " WHERE tx_id IN"
+			+ " (SELECT txin.tx_id"
+			+ " FROM txin  inner join txout ON txin.txout_id = txout.txout_id "
+			+ " INNER JOIN pubkey ON txout.pubkey_id = pubkey.pubkey_id "
+			+ " WHERE  txout.pubkey_id = ?)";
 	}	
 	
 	public static String setTxoutPosToAdvanceIndex() {
-		return "update advance_shadow set txout_pos = txout.txout_pos from txout where advance_shadow.pubkey_id = txout.pubkey_id";
+		return "UPDATE advance_shadow "
+			+ " SET txout_pos = txout.txout_pos "
+			+ " FROM txout "
+			+ " WHERE advance_shadow.pubkey_id = txout.pubkey_id";
 	}
 
 }

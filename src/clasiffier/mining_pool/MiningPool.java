@@ -19,7 +19,6 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 
 import database.DBConnection;
-import database.DBInteraction;
 
 /**
  * This is a Bitcoin Block Origin - Block List parser. The aim of this parser is to get id,

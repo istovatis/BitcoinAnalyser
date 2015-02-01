@@ -1,8 +1,11 @@
 package database;
 
 import java.sql.SQLException;
-import java.util.List;
 
+/**
+ * Use this Class to Update DB.
+ *
+ */
 public class DBDataUpdater extends DBInteraction{
 	
 	

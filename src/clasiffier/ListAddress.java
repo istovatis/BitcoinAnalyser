@@ -42,39 +42,17 @@ public class ListAddress {
 			complexCluster = false;
 	}
 	
-	public static boolean isComplexCluster(){
-		return complexCluster;
-	}
+	public static boolean isComplexCluster(){ return complexCluster; }
 	
-	public int getId() {
-		return id;
-	}
+	public int getId() { return id; }
+	public void setId(int id) { this.id = id; }
 
-	public void setId(int id) {
-		this.id = id;
-	}
+	public String getName() { return name; }
+	public void setName(String name) { this.name = name; }
 
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	public String getAddress() {
-		return address;
-	}
-
-	public void setAddress(String address) {
-		this.address = address;
-	}
+	public String getAddress() { return address; }
+	public void setAddress(String address) { this.address = address; }
 	
-	public String getValue() {
-		return value;
-	}
-
-	public void setValue(String value) {
-		this.value = value;
-	}
+	public String getValue() { return value; }
+	public void setValue(String value) { this.value = value; }
 }

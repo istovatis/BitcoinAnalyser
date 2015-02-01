@@ -1,6 +1,5 @@
 package abe.user_clustering;
 import java.sql.Array;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -8,14 +7,15 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Map;
 
-import database.DBConnection;
 import database.DBInteraction;
-
 import abe.Filters;
 
+/**
+ * Find the shadow addresses and map them with the corresponding entity.
+ *
+ */
 public class ShadowClustering extends DBInteraction {
 	private ArrayList<HashSet<Integer>> groupedTxs;
 	HashSet<Integer> addedPubKey;
@@ -38,7 +38,6 @@ public class ShadowClustering extends DBInteraction {
 				String sql = "SELECT tx_id, txout_id, pubkey_id FROM txout WHERE txout_id = " + i;
 				rs = stSelect.executeQuery(sql);
 				
-
 				int selectedSet = -1;
 				while (rs.next()) {
 					int tx_id = rs.getInt(1);
@@ -68,17 +67,6 @@ public class ShadowClustering extends DBInteraction {
 				if (i % 500000 == 0)
 					showInfo(i);
 			}
-			// for (HashSet set : groupedTxs) {
-			// if (set.size() > 4) {
-			// Iterator iterator = set.iterator();
-			//
-			// // check values
-			// while (iterator.hasNext()) {
-			// System.out.print(": " + iterator.next() + " ");
-			// }
-			// System.out.println();
-			// }
-			// }
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -133,7 +121,6 @@ public class ShadowClustering extends DBInteraction {
 			stSelect.close();
 			preparedStatement.close();
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -147,10 +134,7 @@ public class ShadowClustering extends DBInteraction {
 	}
 
 	@Override
-	public void readDataFile() {
-		// TODO Auto-generated method stub
-
-	}
+	public void readDataFile() { }
 	
 	public void start(){
 		Filters filter = new Filters();
@@ -166,15 +150,25 @@ public class ShadowClustering extends DBInteraction {
 	 */
 	public static String txWithSameInputsOutputs() {
 		return "SELECT distinct(at11.ole) FROM "
-				+ "(SELECT * FROM (SELECT txout.*, txin.tx_id as ole FROM txin INNER JOIN txout ON txout.txout_id = txin.txout_id where txin.txout_id is not null ) as at1) as at11 "
-				+ "INNER JOIN  txout ON at11.pubkey_id = txout.pubkey_id and txout.tx_id = at11.ole";
+			+ "(SELECT * "
+			+ "FROM "
+				+ " (SELECT txout.*, txin.tx_id as ole "
+				+ " FROM txin "
+				+ " INNER JOIN txout ON txout.txout_id = txin.txout_id "
+				+ " WHERE txin.txout_id IS NOT NULL ) as at1) as at11 "
+			+ "INNER JOIN  txout ON at11.pubkey_id = txout.pubkey_id AND "
+			+ " txout.tx_id = at11.ole";
 	}
 	
 	public static String notNewGenNotOutputAtInput() {
-		return "SELECT tx_id from tx where tx_id not in"
-				+ " (SELECT distinct(at11.ole) FROM "
-				+ "(SELECT * FROM (SELECT txout.*, txin.tx_id as ole FROM txin INNER JOIN txout ON txout.txout_id = txin.txout_id) as at1) as at11 "
-				+ "INNER JOIN  txout ON at11.pubkey_id = txout.pubkey_id and txout.tx_id = at11.ole)";
+		return "SELECT tx_id FROM tx WHERE tx_id not in"
+			+ " (SELECT distinct(at11.ole) FROM "
+				+ "(SELECT * FROM ("
+					+ "	SELECT txout.*, txin.tx_id as ole "
+					+ " FROM txin INNER JOIN txout ON txout.txout_id = txin.txout_id) as at1) as at11 "
+				+ " INNER JOIN  txout ON "
+				+ " at11.pubkey_id = txout.pubkey_id "
+				+ " AND txout.tx_id = at11.ole)";
 	}
 
 }

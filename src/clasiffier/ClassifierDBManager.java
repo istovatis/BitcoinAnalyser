@@ -1,24 +1,23 @@
 package clasiffier;
 
-import java.io.BufferedReader;
-import java.io.DataInputStream;
-import java.io.FileInputStream;
-import java.io.InputStreamReader;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 
 import clasiffier.ListAddress.Cluster;
 import database.DBConnection;
-import database.DBInteraction;
 
 import abe.Config;
 import bitcointools.Key;
 
-public class ClassifierDBManager extends Key{
+/**
+ * Classifier Manager that integrates with DB. Manager is responsible for updating DB
+ * providing the community in which every entity participates.
+ *
+ */
+public class ClassifierDBManager extends Key {
 	
 		private Connection connection;
 		public ClassifierDBManager(){
@@ -26,9 +25,7 @@ public class ClassifierDBManager extends Key{
 			batchSize = 50;
 		}
 		
-		public void readDataFile() {
-			
-		}
+		public void readDataFile() { }
 		
 		public void insertListToDB(List<Integer> addressList, Cluster cluster){
 			try {
@@ -134,7 +131,6 @@ public class ClassifierDBManager extends Key{
 					}
 				}
 			} catch (SQLException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 			return idList;

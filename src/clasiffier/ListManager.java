@@ -12,7 +12,6 @@ import clasiffier.ListAddress.Cluster;
 import database.DBConnection;
 import database.DBInteraction;
 
-import abe.Config;
 import abe.core.ConvertAddressToHash160WithParser;
 import bitcointools.Key;
 
@@ -27,25 +26,16 @@ public class ListManager extends Key {
 		setFile(cluster.name());
 	}
 
-	public String getColumn() {
-		return column;
-	}
+	public String getColumn() { return column; }
+	public void setColumn(String column) { this.column = column; }
 
-	public void setColumn(String column) {
-		this.column = column;
-	}
-
-	public String getFile() {
-		return file;
-	}
+	public String getFile() { return file; }
 
 	public void setFile(String file) {
 		this.file = path + file + ".csv";
 	}
 
-	public void setTable(String table) {
-		this.table = table;
-	}
+	public void setTable(String table) { this.table = table; }
 
 	public ListManager() {
 		listAddresses = new ArrayList<ListAddress>();
@@ -59,9 +49,7 @@ public class ListManager extends Key {
 		listAddresses.add(listAddress);
 	}
 
-	public void readDataFile() {
-		//
-	}
+	public void readDataFile() { }
 	
 	/**
 	 * Read .csv file. Then for every pubkey_hash get its pubkey_id

@@ -1,7 +1,12 @@
 package abe.user_clustering;
 import java.util.ArrayList;
 
-
+/**
+ * Shadow address is this address that is used to return changes 
+ * to user that commited the transaction.
+ * @author istovatis
+ *
+ */
 public class ShadowAddress {
 	private int id;
 	private int txId;
@@ -15,35 +20,15 @@ public class ShadowAddress {
 		this.pubKey = pubKey;
 		id += 1;
 	}
-	public int getId() {
-		return id;
-	}
+	public int getId() { return id; }
+	public void setId(int id) { this.id = id; }
 
-	public void setId(int id) {
-		this.id = id;
-	}
+	public int getTxId() { return txId; }
+	public void setTxId(int txId) { this.txId = txId; }
 
-	public int getTxId() {
-		return txId;
-	}
+	public int getTxoutId() { return txoutId; }
+	public void setTxoutId(int txoutId) { this.txoutId = txoutId; }
 
-	public void setTxId(int txId) {
-		this.txId = txId;
-	}
-
-	public int getTxoutId() {
-		return txoutId;
-	}
-
-	public void setTxoutId(int txoutId) {
-		this.txoutId = txoutId;
-	}
-
-	public int getPubKey() {
-		return pubKey;
-	}
-
-	public void setPubKey(int pubKey) {
-		this.pubKey = pubKey;
-	}
+	public int getPubKey() { return pubKey; }
+	public void setPubKey(int pubKey) { this.pubKey = pubKey; }
 }

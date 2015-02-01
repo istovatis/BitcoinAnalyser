@@ -10,7 +10,10 @@ import abe.user_clustering.ShadowClustering;
 import database.DBConnection;
 import database.DBInteraction;
 
-
+/**
+ * Filters are used to return a opted subset of a requested set.
+ *
+ */
 public class Filters extends DBInteraction{
 	private static HashSet<Integer> notCoinGenTx;
 	int minTx, maxTx;
@@ -73,7 +76,8 @@ public class Filters extends DBInteraction{
 					e.printStackTrace();
 				}
 		}
-		System.out.println(notCoinGenTx.size() + " Transactions that are not coin generations and not containing at least one output that is also an input loaded");
+		System.out.println(notCoinGenTx.size() + " Transactions that are not coin generations and not "
+				+ "containing at least one output that is also an input loaded");
 		return notCoinGenTx;
 	}
 	
@@ -121,19 +125,13 @@ public class Filters extends DBInteraction{
 						+ " tx.");
 			}
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
-
 		}
 	}
 	
-	public int getMax() {
-		return maxTx;
-	}
+	public int getMax() { return maxTx; }
 	
-	public int getMin() {
-		return minTx;
-	}
+	public int getMin() { return minTx; }
 
 	@Override
 	public void readDataFile() {}

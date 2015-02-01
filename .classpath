@@ -28,5 +28,6 @@
 	<classpathentry kind="lib" path="/home/user/bitcoin libs/scrapper/xalan-2.7.1.jar"/>
 	<classpathentry kind="lib" path="/home/user/bitcoin libs/scrapper/xercesImpl-2.10.0.jar"/>
 	<classpathentry kind="lib" path="/home/user/bitcoin libs/scrapper/xml-apis-1.4.01.jar"/>
+	<classpathentry kind="lib" path="/home/user/bitcoin libs/bitcoinj-0.8.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

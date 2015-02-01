@@ -1,23 +1,15 @@
 package clasiffier.mining_pool;
 
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.codec.binary.Hex;
-
 import parser.WebPageParser;
-
-
-import abe.Utils;
 import abe.core.ConvertAddressToHash160WithParser;
 
 import com.gargoylesoftware.htmlunit.html.HtmlAnchor;
-import com.gargoylesoftware.htmlunit.html.HtmlTableDataCell;
 
-import database.DBDataProvider;
 import database.DBDataReceiver;
 import database.DBDataUpdater;
 

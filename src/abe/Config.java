@@ -1,5 +1,9 @@
 package abe;
 
+/**
+ * Basic Configuration file 
+ *
+ */
 public class Config {
 	
 	private static boolean DBIntegration;	// This is true if you want to integrate with database

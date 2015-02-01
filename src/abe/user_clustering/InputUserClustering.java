@@ -18,13 +18,20 @@ import database.DBInteraction;
 import database.Queries;
 import abe.Filters;
 
+/**
+ * Group all transaction inputs of the same tx. 
+ * Then group all public keys that were used as inputs in the same tx.
+ * The result of those consequtive grouping functions will be the creation
+ * of entities. Entity is defined as a group of public keys that were used
+ * as inputs in same txs.
+ *
+ */
 public class InputUserClustering extends DBInteraction {
 	private Map<Integer, Integer> pubKeyToTx;
 	ArrayList<HashSet<Integer>> groupedTxs;
 	HashSet<Integer> addedTxs;
 	protected ResultSet rs, rs2;
 	Integer currentTx, currentPubkey = 0;
-	int[] ole = { 23, 13, 12, 45, 23, 45, 45, 13, 4, 5, 4, 4 };
 	String entity = "entity";
 	int numInsertedTxs;
 	int entityId = 0;
@@ -70,7 +77,6 @@ public class InputUserClustering extends DBInteraction {
 					}
 				}
 				// rs.close();
-
 				if (currentTxin % 1000000 == 0)
 					showInfo(currentTxin);
 			}
@@ -190,8 +196,7 @@ public class InputUserClustering extends DBInteraction {
 				}
 			}
 		}
-		System.out
-				.println("That's it. Clustering using inputs has been completed. ");
+		System.out.println("That's it. Clustering using inputs has been completed. ");
 		return groupedTxs;
 	}
 
@@ -249,9 +254,7 @@ public class InputUserClustering extends DBInteraction {
 			if (size == 1)
 				tmp++;
 			insertStatement.setInt(1, i + 1);
-
 			insertStatement.setArray(2, pubKeys);
-
 			insertStatement.addBatch();
 			if (i % 200000 == 0) {
 				addToDatabase(i, insertStatement);
@@ -315,7 +318,14 @@ public class InputUserClustering extends DBInteraction {
 						+ new Date());
 		String insertTableSQL = "INSERT INTO light_entity_index (entity_id, pub_key, only_out) VALUES"
 				+ "(?, ?, true)";
-		String selectOutsSQL = "SELECT a.pubkey_id  FROM pubkey a LEFT JOIN light_entity_index b ON a.pubkey_id = b.pub_key LEFT JOIN advance_shadow c ON a.pubkey_id = c.pubkey_id WHERE b.pub_key IS NULL and c.pubkey_id IS NULL";
+		String selectOutsSQL = "SELECT a.pubkey_id "
+				+ " FROM pubkey a "
+				+ " LEFT JOIN light_entity_index b "
+				+ " ON a.pubkey_id = b.pub_key "
+				+ " LEFT JOIN advance_shadow c "
+				+ " ON a.pubkey_id = c.pubkey_id "
+				+ " WHERE b.pub_key IS NULL "
+				+ " AND c.pubkey_id IS NULL";
 		int id = DBDataReceiver.count("entity_id", "light_entity_index", false);
 		System.out.println("first given id :" + id);
 		try {
@@ -336,10 +346,7 @@ public class InputUserClustering extends DBInteraction {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-		System.out
-				.println("Insertion of pubkeys that exist only as outputs ended at "
-						+ new Date());
-
+		System.out.println("Insertion of pubkeys that exist only as outputs ended at " + new Date());
 	}
 
 	/**
@@ -372,26 +379,47 @@ public class InputUserClustering extends DBInteraction {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-		System.out
-				.println("Insertion of advance shadow ended at " + new Date());
+		System.out.println("Insertion of advance shadow ended at " + new Date());
 	}
-
+	
 	/**
-	 * d
-	 * 
+	 * Find the sender of a given tx
+	 * @return the user that sent the given tx
+	 */
+	public static String findFromPubKeyClause() {
+		return  "SELECT entity_index.entity_id "
+			+ " FROM txout "
+			+ " INNER JOIN txin ON "
+			+ " txout.txout_id = txin.txout_id "
+			+ " INNER JOIN entity_index ON txout.pubkey_id = entity_index.pub_key "
+			+ " WHERE txin.tx_id = ? AND txin.txout_id != 0 LIMIT 1 ";
+	}
+	
+	/**
+	 * Find the BTC receiver/receivers of a give tx
+	 * @return the entity/entities that received a particular tx
+	 */
+	public static String findToPubKeyClause() {
+		return "SELECT entity_index.entity_id "
+			+ " FROM txout INNER JOIN entity_index ON "
+			+ " txout.pubkey_id = entity_index.pub_key "
+			+ " WHERE txout.tx_id = ? ";
+	}	
+	
+	/**
+	 * Create the user edge table that contains the sender,
+	 * the receiver, the id of the tx and the value
 	 * @throws SQLException
 	 */
 	public void createUserEdgesTable() throws SQLException {
 		System.out.println("Creating User Edge table... Starting at "
 				+ new Date());
-		String sqlFindFromPubKey = "Select entity_index.entity_id from txout inner join txin on txout.txout_id = txin.txout_id  inner join entity_index on txout.pubkey_id = entity_index.pub_key where txin.tx_id = ? and txin.txout_id != 0 LIMIT 1 ";
-		String sqlFindToPubKey = "Select entity_index.entity_id from txout inner join entity_index on txout.pubkey_id = entity_index.pub_key where txout.tx_id = ? ";
-		String insertToUserEdges = "Insert into user_edge (id, from_user, to_user) values  (?, ?, ?)";
-		PreparedStatement fromStatement = connection
-				.prepareStatement(sqlFindFromPubKey);
+		String sqlFindFromPubKey = findFromPubKeyClause();
+		String sqlFindToPubKey = findToPubKeyClause();
+		String insertToUserEdges = "INSERT INTO user_edge (id, from_user, to_user) VALUES (?, ?, ?)";
+		PreparedStatement fromStatement = connection.prepareStatement(sqlFindFromPubKey);
 		updateStatement = connection.prepareStatement(sqlFindToPubKey);
-		PreparedStatement insertStatement = connection
-				.prepareStatement(insertToUserEdges);
+		PreparedStatement insertStatement = connection.prepareStatement(insertToUserEdges);
 
 		// findBounds("tx", "tx_id");
 		Filters filter = new Filters();
@@ -427,24 +455,32 @@ public class InputUserClustering extends DBInteraction {
 		}
 		insertStatement.executeBatch();
 	}
-
+	
+	/**
+	 * A second implementation of creating a user edge table.
+	 * @throws SQLException
+	 */
 	public void createUserEdgesTable2() throws SQLException {
 		System.out.println("Creating User Edge table... Max tx:" + bounds.getMaxTx()
 				/ limit + " Starting at " + new Date());
 		HashSet<Integer> txs = new HashSet<Integer>();
-		String sqlFindFromPubKey = "Select entity_index.entity_id, txin.tx_id from txout inner join txin on txout.txout_id = txin.txout_id  inner join entity_index on txout.pubkey_id = entity_index.pub_key where txin.tx_id <= ? and txin.txout_id != 0 ";
-		String sqlFindToPubKey = "Select entity_index.entity_id, txout.tx_id from txout inner join entity_index on txout.pubkey_id = entity_index.pub_key where txout.tx_id <= ? ";
+		String sqlFindFromPubKey = "SELECT entity_index.entity_id, txin.tx_id "
+				+ "FROM txout "
+				+ " INNER JOIN txin ON txout.txout_id = txin.txout_id "
+				+ " INNER JOIN entity_index ON txout.pubkey_id = entity_index.pub_key"
+				+ " WHERE txin.tx_id <= ? and txin.txout_id != 0 ";
+		String sqlFindToPubKey = "SELECT entity_index.entity_id, txout.tx_id "
+				+ " FROM txout "
+				+ " INNER JOIN entity_index ON "
+				+ " txout.pubkey_id = entity_index.pub_key "
+				+ " WHERE txout.tx_id <= ? ";
 		String insertFromUserEdges = "Insert into user_edge (id, from_user) values  (?, ?) ";
 		String insertToUserEdges = "Update user_edge set to_user = ? where id = ? ";
 
-		PreparedStatement fromStatement = connection
-				.prepareStatement(sqlFindFromPubKey);
-		PreparedStatement toStatement = connection
-				.prepareStatement(sqlFindToPubKey);
-		PreparedStatement insertFromStatement = connection
-				.prepareStatement(insertFromUserEdges);
-		PreparedStatement insertToStatement = connection
-				.prepareStatement(insertToUserEdges);
+		PreparedStatement fromStatement = connection.prepareStatement(sqlFindFromPubKey);
+		PreparedStatement toStatement = connection.prepareStatement(sqlFindToPubKey);
+		PreparedStatement insertFromStatement = connection.prepareStatement(insertFromUserEdges);
+		PreparedStatement insertToStatement = connection.prepareStatement(insertToUserEdges);
 
 		int from = 0, to = 0, tx = 0;
 		fromStatement.setInt(1, bounds.getMaxTx() / limit);
@@ -483,8 +519,19 @@ public class InputUserClustering extends DBInteraction {
 		System.out.println("Creating User Edge table... Max tx:" + bounds.getMaxTx()
 				/ limit + " Starting at " + new Date());
 
-		String sqlFindFromPubKey = "Select c.entity_id, b.tx_id from txout a inner join txin b on a.txout_id = b.txout_id  inner join light_entity_index c on a.pubkey_id = c.pub_key where a.tx_id > ? and a.tx_id <= ? and b.txout_id != 0 ";
-		String sqlFindToPubKey = "Select b.entity_id, a.tx_id, a.txout_value from txout a inner join light_entity_index b on a.pubkey_id = b.pub_key where a.tx_id > ? and a.tx_id <= ?  ";
+		String sqlFindFromPubKey = "SELECT c.entity_id, b.tx_id "
+				+ " FROM txout a "
+				+ " INNER JOIN txin b "
+				+ " ON a.txout_id = b.txout_id "
+				+ " INNER JOIN light_entity_index c "
+				+ " ON a.pubkey_id = c.pub_key "
+				+ " WHERE a.tx_id > ? AND "
+				+ " a.tx_id <= ? AND"
+				+ " b.txout_id != 0 ";
+		String sqlFindToPubKey = "SELECT b.entity_id, a.tx_id, a.txout_value "
+				+ " FROM txout a "
+				+ " INNER JOIN light_entity_index b ON a.pubkey_id = b.pub_key "
+				+ " WHERE a.tx_id > ? AND a.tx_id <= ?  ";
 		String insertToUserEdges = "INSERT INTO user_edge (to_user, id, value) values (?, ?, ?) ";
 		String insertFromUserEdges = "UPDATE user_edge  set from_user = ? where id = ? ";
 
@@ -611,13 +658,13 @@ public class InputUserClustering extends DBInteraction {
 	public void start() {
 		try {
 			bounds.findBounds("txin", "txin_id");
-			// lightGroupTxsPubkeys();
-			// createEntityTable();
-			// lightCreateEntityIndexTable();
+			 lightGroupTxsPubkeys();
+			 createEntityTable();
+			 lightCreateEntityIndexTable();
 			 createUserEdgesTable3();
-			// insertOnlyInputsAtEntityIndex();
-			// insertAdvanceShadowAtEntityIndex();
-			//setClusteredEntityId();
+			 insertOnlyInputsAtEntityIndex();
+			 insertAdvanceShadowAtEntityIndex();
+			 setClusteredEntityId();
 		} catch (SQLException e) {
 			e.printStackTrace();
 			System.out.println(e.getNextException());

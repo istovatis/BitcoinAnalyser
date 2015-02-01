@@ -1,12 +1,16 @@
 package clasiffier;
 
-import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 
 import clasiffier.ListAddress.Cluster;
 import clasiffier.mining_pool.MiningPool;
 
+/**
+ * The Classifier uses parsers to get Public Key Hashes of community users.
+ * Managers are then responsible for updating Entity Light Index table and
+ * declaring that the entity of a parsed key is a member of a community.
+ *
+ */
 public class Classifier {
 	public static void main(String[] args) {
 

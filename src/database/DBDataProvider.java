@@ -1,12 +1,12 @@
 package database;
 
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.ArrayList;
 
-import clasiffier.mining_pool.MiningPool;
-
+/** 
+ * Class that has access to DB and provides DB with new Data.
+ *
+ */
 public class DBDataProvider extends DBInteraction {
 	
 	public void insertStringClause(String field, String table, ArrayList<String> records) {

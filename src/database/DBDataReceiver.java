@@ -6,12 +6,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Provide data from database.
+ * Use this class to receive Data from DB.
  * 
  * @author istovatis
  *
  */
 public class DBDataReceiver extends DBInteraction {
+	
+	private static ArrayList<Long> longRecords;
 
 	protected int minTx;
 	protected int maxTx;
@@ -22,6 +24,14 @@ public class DBDataReceiver extends DBInteraction {
 
 	public int getMaxTx() {
 		return maxTx;
+	}
+	
+	public static ArrayList<Long> getSubList(int from, int to) {
+		return (ArrayList<Long>) longRecords.subList(from, to);
+	}
+	
+	public static int listSize() {
+		return longRecords.size();
 	}
 
 	public static List<?> selectStringClause(String field, String table) {
@@ -135,14 +145,14 @@ public class DBDataReceiver extends DBInteraction {
 		}
 		return count;
 	}
-
+	
 	public static List<?> selectQuery(String select) {
-		ArrayList<Integer> records = new ArrayList<Integer>();
+		longRecords = new ArrayList<Long>();
 		try {
 			preparedStatement = connection.prepareStatement(select);
 			ResultSet rs = preparedStatement.executeQuery();
 			while (rs.next()) {
-				records.add(rs.getInt(1));
+				longRecords.add(rs.getLong(1));
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -159,7 +169,31 @@ public class DBDataReceiver extends DBInteraction {
 			}
 		}
 
-		return records;
+		return longRecords;
+	}
+	
+	public static void selectLongQuery(String select) {
+		longRecords = new ArrayList<Long>();
+		try {
+			preparedStatement = connection.prepareStatement(select);
+			ResultSet rs = preparedStatement.executeQuery();
+			while (rs.next()) {
+				longRecords.add(rs.getLong(1));
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+			System.out.println(e.getNextException());
+		}
+
+		finally {
+			if (preparedStatement != null) {
+				try {
+					preparedStatement.close();
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+			}
+		}
 	}
 	
 	public static List<?> selectTwoFieldsQuery(String select) {
