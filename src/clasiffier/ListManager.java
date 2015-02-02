@@ -19,7 +19,6 @@ public class ListManager extends Key {
 	private static List<ListAddress> listAddresses;
 	protected String file;
 	protected String column;
-	String path = DBInteraction.path + "/Lists/";
 
 	public ListManager(Cluster cluster) {
 		listAddresses = new ArrayList<ListAddress>();
@@ -32,7 +31,7 @@ public class ListManager extends Key {
 	public String getFile() { return file; }
 
 	public void setFile(String file) {
-		this.file = path + file + ".csv";
+		this.file =	getClass().getClassLoader().getResource(file + ".csv").getPath();
 	}
 
 	public void setTable(String table) { this.table = table; }

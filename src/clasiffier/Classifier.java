@@ -14,10 +14,10 @@ import clasiffier.mining_pool.MiningPool;
 public class Classifier {
 	public static void main(String[] args) {
 
-		for (String input : args) {
+		for (String input : args) 
 			if (!classify(input))
-				System.out.println("There is no classifier named "+input+ ". Please check the name you provided");
-		}
+				System.out.println("There is no classifier named "+input+ ". "
+						+ "Please check the name you provided");
 	}
 	
 	public static boolean classify(String classy) {

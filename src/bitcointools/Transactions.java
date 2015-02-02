@@ -46,13 +46,8 @@ public class Transactions extends DBInteraction {
 	BufferedWriter errorBw;
 	BufferedWriter bw;
 
-	public int getCurrent() {
-		return current;
-	}
-
-	public void setCurrent(int current) {
-		this.current = current;
-	}
+	public int getCurrent() { return current; }
+	public void setCurrent(int current) { this.current = current; }
 
 	public int getRows() {
 		return rows;
@@ -90,13 +85,10 @@ public class Transactions extends DBInteraction {
 			while ((strLine = br.readLine()) != null) {
 				String[] splits = strLine.split(";");
 				Integer id = Integer.valueOf(splits[0]);
-				// if (Transaction.txIds.add(id)) {
 				String hash = splits[1]; // edit to hash
-				// System.out.println("hash : " + hash);
 				Transaction tx = new Transaction(id, hash);
 				// tx.showMore();
 				txList.add(tx);
-				// }
 				rows++;
 				if (rows % 500000 == 0) {
 					Date date2 = new Date();
@@ -131,7 +123,6 @@ public class Transactions extends DBInteraction {
 					errorBw.newLine();
 					// errorBw.close();
 				} catch (IOException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 			}		
@@ -174,7 +165,6 @@ public class Transactions extends DBInteraction {
 			FileWriter fw = new FileWriter(outFile.getAbsoluteFile());
 			bw = new BufferedWriter(fw);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
@@ -211,7 +201,6 @@ public class Transactions extends DBInteraction {
 					bw.write(content);
 					bw.newLine();
 				} catch (IOException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 			}
@@ -258,9 +247,6 @@ public class Transactions extends DBInteraction {
 					}
 					parsedTxList.add(tx);
 					counter.hashSet.add(Integer.valueOf(number));
-//					System.out.println(number + " " + tx.getHash() + "  "
-//							+ counter.hashSet.size() + " "
-//							+ tx.getNumAddresses());
 					return number;
 				}
 			};
@@ -268,7 +254,6 @@ public class Transactions extends DBInteraction {
 			list.add(submit);
 
 		}
-		// System.out.println("ok");
 
 		// This will make the executor accept no new threads
 		// and finish all existing threads in the queue
@@ -296,11 +281,4 @@ public class Transactions extends DBInteraction {
 			throw new RuntimeException("Double-entries!!!");
 		}
 	}
-
-	@Override
-	public void readDataFile() {
-		// TODO Auto-generated method stub
-
-	}
-
 }

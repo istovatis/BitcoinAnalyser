@@ -132,7 +132,4 @@ public class Filters extends DBInteraction{
 	public int getMax() { return maxTx; }
 	
 	public int getMin() { return minTx; }
-
-	@Override
-	public void readDataFile() {}
 }

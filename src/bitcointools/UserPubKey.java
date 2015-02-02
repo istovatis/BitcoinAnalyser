@@ -4,7 +4,6 @@ import java.io.DataInputStream;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
 import java.sql.Statement;
-import java.sql.Connection;
 
 import database.DBConnection;
 import database.DBInteraction;
@@ -32,16 +31,12 @@ public class UserPubKey  extends DBInteraction implements User {
 				if(numKeys>maxKeys){
 					maxKeys = numKeys;
 				}
-//				for(String tag:tags){
-//					System.out.println(tag);
-//				}
 			}
 			System.out.println("Rows: "+rows);
 			System.out.println("MaxKeys: "+maxKeys);
 		} catch (Exception e) {
 			e.printStackTrace();
 			System.out.println(e.getMessage());
-			// System.err.println("Error: " + e.getMessage());
 		}
 	}
 }

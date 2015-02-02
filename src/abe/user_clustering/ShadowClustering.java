@@ -132,9 +132,6 @@ public class ShadowClustering extends DBInteraction {
 		System.out.println("Entities: " + numEntities + ". Grouped entities: "
 				+ groupedTxs);
 	}
-
-	@Override
-	public void readDataFile() { }
 	
 	public void start(){
 		Filters filter = new Filters();
@@ -163,12 +160,12 @@ public class ShadowClustering extends DBInteraction {
 	public static String notNewGenNotOutputAtInput() {
 		return "SELECT tx_id FROM tx WHERE tx_id not in"
 			+ " (SELECT distinct(at11.ole) FROM "
-				+ "(SELECT * FROM ("
-					+ "	SELECT txout.*, txin.tx_id as ole "
-					+ " FROM txin INNER JOIN txout ON txout.txout_id = txin.txout_id) as at1) as at11 "
-				+ " INNER JOIN  txout ON "
-				+ " at11.pubkey_id = txout.pubkey_id "
-				+ " AND txout.tx_id = at11.ole)";
+			+ "(SELECT * FROM ("
+			+ "	SELECT txout.*, txin.tx_id as ole "
+			+ " FROM txin INNER JOIN txout ON txout.txout_id = txin.txout_id) as at1) as at11 "
+			+ " INNER JOIN  txout ON "
+			+ " at11.pubkey_id = txout.pubkey_id "
+			+ " AND txout.tx_id = at11.ole)";
 	}
 
 }

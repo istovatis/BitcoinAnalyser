@@ -619,9 +619,6 @@ public class InputUserClustering extends DBInteraction {
 				+ groupedTxs);
 	}
 
-	@Override
-	public void readDataFile() {}
-
 	public void findInsertedTxs() throws SQLException {
 		connection = DBConnection.get().connectPostgre();
 		String stats = "select count(id) from " + entity;
@@ -638,9 +635,10 @@ public class InputUserClustering extends DBInteraction {
 	 * Sets clustered entity id for advance shadow public keys
 	 */
 	public void setClusteredEntityId() {
-		String select = "SELECT min(b.pubkey_id), min(a.pubkey_id), min(c.entity_id) FROM advance_shadow a INNER JOIN txout b ON a.tx_id = b.tx_id "
-				+ "INNER JOIN light_entity_index c ON b.pubkey_id = c.pub_key "
-				+ "WHERE a.txout_pos != b.txout_pos GROUP BY b.tx_id";
+		String select = "SELECT min(b.pubkey_id), min(a.pubkey_id), min(c.entity_id) "
+				+ " FROM advance_shadow a INNER JOIN txout b ON a.tx_id = b.tx_id "
+				+ " INNER JOIN light_entity_index c ON b.pubkey_id = c.pub_key "
+				+ " WHERE a.txout_pos != b.txout_pos GROUP BY b.tx_id";
 		try {
 			preparedStatement = connection.prepareStatement(select);
 			ResultSet rs = preparedStatement.executeQuery();

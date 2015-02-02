@@ -55,15 +55,9 @@ public class UserEdges extends DBInteraction {
 	}
 
 	private final String file = "user_edges.txt";
-	MultiMap mhm = new MultiHashMap();
 	SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd-HH:mm:ss");
 	SimpleDateFormat TIME_FORMAT = new SimpleDateFormat("hh:mm:ss");
 	HashSet<ArrayList<Number>> uniqueKey = new HashSet<ArrayList<Number>>();
-
-	// HashSet<ArrayList<Number>> dublicateKey = new
-	// HashSet<ArrayList<Number>>(); // Set of dublicate keys
-
-	// MultiMap uniqueKey = new MultiHashMap();
 
 	public void readDataFile() {
 		try {
@@ -90,7 +84,7 @@ public class UserEdges extends DBInteraction {
 						+ table);
 			}
 			if (Config.isDublicatesIntegration()) {
-				System.out.println(emptyDuplicateTable()
+				System.out.println(emptyTable(this.duplicateTable)
 						+ " Records deleted from " + this.duplicateTable);
 			}
 			while ((strLine = br.readLine()) != null) {
@@ -115,8 +109,7 @@ public class UserEdges extends DBInteraction {
 				preparedStatement.setTimestamp(5,
 						getCurrentTimeStamp(returnDate(tags[3])));
 				preparedStatement.setDouble(6, Double.valueOf(tags[4]));
-				// int []tmp = {key, from, to};
-				// uniqueKey.add(Arrays.hashCode(tmp));
+			
 				if (Config.isDBIntegration()) {
 					// execute insert SQL stetement
 					preparedStatement.addBatch();
@@ -188,7 +181,6 @@ public class UserEdges extends DBInteraction {
 		try {
 			d = TIME_FORMAT.parse(time);
 		} catch (ParseException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return d;
@@ -206,9 +198,6 @@ public class UserEdges extends DBInteraction {
 		tmp2.add(value);
 		tmp2.add(time.getTime());
 		if (!uniqueKey.add(tmp2)) {
-			// System.out.println("Double entry! "+ line+" "+ transactionKey +
-			// "  " + from
-			// + "  " + to + "  " + value + "  " + time);
 			if (Config.isDublicatesIntegration()) {
 				// if(dublicateKey.add(tmp2)){
 				try {
@@ -222,13 +211,10 @@ public class UserEdges extends DBInteraction {
 					duplicateStatement.setDouble(6, Double.valueOf(value));
 					duplicateStatement.addBatch();
 				} catch (SQLException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-				// }
 			}
 		}
-		// tmp2.clear();
 	}
 
 	/**
@@ -279,7 +265,6 @@ public class UserEdges extends DBInteraction {
 			bw.close();
 			Date date2 = new Date();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -321,7 +306,6 @@ public class UserEdges extends DBInteraction {
 			bw.close();
 			Date date2 = new Date();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -353,7 +337,6 @@ public class UserEdges extends DBInteraction {
 				}
 				fws[i] = new FileWriter(outFiles[i].getAbsoluteFile());
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 			bw[i] = new BufferedWriter(fws[i]);
@@ -414,11 +397,9 @@ public class UserEdges extends DBInteraction {
 						counter++;
 					}
 				} catch (IOException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 			} catch (FileNotFoundException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 			System.out.println("Parsed file "+i+ " with "+counter+" records");

@@ -2,22 +2,11 @@ package clasiffier;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
-import java.util.PriorityQueue;
-
-import org.eclipse.jetty.util.MultiMap;
-import org.junit.Test;
-
 import parser.WebPageParser;
 
-
-import com.gargoylesoftware.htmlunit.WebClient;
-import com.gargoylesoftware.htmlunit.html.HtmlDivision;
-import com.gargoylesoftware.htmlunit.html.HtmlImage;
-import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import com.gargoylesoftware.htmlunit.html.HtmlTable;
 import com.gargoylesoftware.htmlunit.html.HtmlTableCell;
 import com.gargoylesoftware.htmlunit.html.HtmlTableRow;
@@ -61,13 +50,13 @@ public class Donations {
 					int rowCell = 0;
 					Donations record = new Donations();
 					for (final HtmlTableCell cell : row.getCells()) {
-						if (rowCell == 0) {		//get the address
+						if (rowCell == 0)	//get the address
 							record.address = cell.asText();
-						} else if (rowCell == 1) {		//get the tag
+					    else if (rowCell == 1) 		//get the tag
 							record.tag = cell.asText();
-						} else if (rowCell == 2) {		// get the link
+						else if (rowCell == 2) 	// get the link
 							record.link = cell.asText();
-						} else if (rowCell == 3) {
+						 else if (rowCell == 3) {
 							if (cell.asText().equals("")) {
 								String text = cell.asXml();
 								if (text.length() > 1) {
@@ -94,7 +83,6 @@ public class Donations {
 							mostTaged.put(record.link, record.address);
 							tagList.add(record);
 						}
-						// System.out.println("   Found cell: " + cell.asText());
 						rowCell++;
 					}
 				}
@@ -145,7 +133,6 @@ public class Donations {
 			}
 			preparedStatement.executeBatch();
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 

@@ -21,13 +21,15 @@ public abstract class DBInteraction {
 	protected static Connection connection = DBConnection.get().connectPostgre();
 	protected static BufferedReader br; // BufferReader for file parsing
 
-	protected final static String path = System.getProperty("user.home")+File.separator+"bitcoin"+File.separator;
-	// System.getProperty("user.dir")+File.separator;
+	protected static String path = "Lists" + File.separator;
+
 	public DBInteraction() {
 		connection = DBConnection.get().connectPostgre();
 	}
 
-	public abstract void readDataFile();
+	public void readDataFile() {
+		// Read data files
+	}
 
 	/**
 	 * Empty the table from database. The table corresponds to the specific
@@ -54,16 +56,14 @@ public abstract class DBInteraction {
 	 * Empty the table from database. The table corresponds to the specific
 	 * class
 	 */
-	public int emptyDuplicateTable() {
+	public int emptyTable(String table) {
 		int recordsDeleted = 0;
-		String insertTableSQL = "DELETE FROM " + this.duplicateTable;
+		String insertTableSQL = "DELETE FROM " + table;
 		try {
-			PreparedStatement preparedStatement = this.connection
-					.prepareStatement(insertTableSQL);
+			PreparedStatement preparedStatement = this.connection.prepareStatement(insertTableSQL);
 			preparedStatement.addBatch();
 			recordsDeleted = preparedStatement.executeUpdate(); //.executeBatch();
-			System.out.println("Deleted all data from " + this.duplicateTable + " at "
-					+ new Date());
+			System.out.println("Deleted all data from " + table + " at " + new Date());
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}

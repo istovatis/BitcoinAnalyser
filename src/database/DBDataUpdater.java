@@ -7,8 +7,7 @@ import java.sql.SQLException;
  *
  */
 public class DBDataUpdater extends DBInteraction{
-	
-	
+		
 	public static void simpleUpdate(String query) {
 		try {
 			preparedStatement = connection.prepareStatement(query);
@@ -67,12 +66,6 @@ public class DBDataUpdater extends DBInteraction{
 				}
 			}
 		}
-	}
-	
-	@Override
-	public void readDataFile() {
-		// TODO Auto-generated method stub
-		
 	}
 
 }

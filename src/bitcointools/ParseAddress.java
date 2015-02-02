@@ -24,14 +24,12 @@ public class ParseAddress extends DBInteraction {
 			br = new BufferedReader(new InputStreamReader(new DataInputStream(
 					new FileInputStream(DBInteraction.path + file))));
 		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
 		try {
 			preparedStatement = connection.prepareStatement(selectTableSQL);
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
@@ -72,7 +70,6 @@ public class ParseAddress extends DBInteraction {
 			Address.showHashTags();
 			Address.showTagStats();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 

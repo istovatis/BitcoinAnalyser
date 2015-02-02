@@ -81,11 +81,5 @@ public class DBDataProvider extends DBInteraction {
 			}
 		}
 	}
-	
-	@Override
-	public void readDataFile() {
-		// TODO Auto-generated method stub
-		
-	}
 
 }

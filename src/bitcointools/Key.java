@@ -20,11 +20,7 @@ import database.DBInteraction;
 public abstract class Key extends DBInteraction{
 	String key;
 	ArrayList<Key> keyList;
-	@Override
-	public void readDataFile() {
-		// TODO Auto-generated method stub
-		
-	}
+	
 	@Override
 	public int emptyTable() {
 		return super.emptyTable();

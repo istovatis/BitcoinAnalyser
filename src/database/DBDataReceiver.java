@@ -242,10 +242,4 @@ public class DBDataReceiver extends DBInteraction {
 			e.printStackTrace();
 		}
 	}
-
-	@Override
-	public void readDataFile() {
-		// TODO Auto-generated method stub
-
-	}
 }

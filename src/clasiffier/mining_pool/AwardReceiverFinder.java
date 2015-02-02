@@ -28,8 +28,7 @@ import database.DBDataUpdater;
 
 public class AwardReceiverFinder {
 	private static Map<String, Integer> blockToPubKey = new HashMap<String, Integer>();	// Map block hash with receiver pub key 	
-	private final String blockChain = "https://blockchain.info/block/"; // the
-																		// webpage
+	private final String blockChain = "https://blockchain.info/block/"; // the webpage
 	private String xpath = "//td[@class='txtd']//a";
 
 	public String getReceiverAddress(String block) throws Exception {
@@ -70,10 +69,15 @@ public class AwardReceiverFinder {
 	 * @return
 	 */
 	public static String getAllPotentialMiners() {
-		return "SELECT pubkey_hash FROM pubkey WHERE pubkey_id in " +
-				"(SELECT pubkey_id FROM txout WHERE tx_id in " +
-				"(SELECT txin.tx_id FROM txin  inner join txout on txin.txout_id = txout.txout_id inner join pubkey on txout.pubkey_id = pubkey.pubkey_id WHERE  txout.pubkey_id in" +
-				"(SELECT pubkey_id FROM mining_pool WHERE pubkey_id IS NOT NULL)))";
+		return "SELECT pubkey_hash "
+			+ " FROM pubkey WHERE pubkey_id in "
+			+ " (SELECT pubkey_id FROM txout WHERE tx_id in " 
+			+ " (SELECT txin.tx_id FROM txin"
+			+ " INNER JOIN txout ON txin.txout_id = txout.txout_id "
+			+ " INNER JOIN pubkey ON txout.pubkey_id = pubkey.pubkey_id"
+			+ " WHERE  txout.pubkey_id in" 
+			+ " (SELECT pubkey_id FROM mining_pool "
+		    + " WHERE pubkey_id IS NOT NULL)))";
 	}
 	
 	/**
@@ -81,6 +85,13 @@ public class AwardReceiverFinder {
 	 * @return
 	 */
 	public static String getAllTxsWhereWinnerIsMiningPool() {
-		return "SELECT tx_id from txin where txout_id is null and tx_id in (SELECT tx_id from txout where pubkey_id in (SELECT pubkey_id from mining_pool where pubkey_id IS NOT NULL))";
+		return "SELECT tx_id "
+			+ " FROM txin WHERE "
+			+ " txout_id IS NULL AND"
+			+ " tx_id IN "
+			+ " (SELECT tx_id FROM"
+			+ " txout WHERE pubkey_id IN "
+			+ " (SELECT pubkey_id from mining_pool WHERE"
+			+ " pubkey_id IS NOT NULL))";
 	}
 }

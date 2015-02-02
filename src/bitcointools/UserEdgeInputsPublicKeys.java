@@ -65,12 +65,6 @@ public class UserEdgeInputsPublicKeys extends DBInteraction implements User {
 					preparedStatement.setInt(1, rows + 1);
 					preparedStatement.setInt(2, transaction_key);
 					preparedStatement.setArray(3, keys);
-
-					// if (!uniqueKeys.add(key)) {
-					// System.out.println("Double entry!" + (rows + 1) + ":"
-					// + key.toString());
-					// }
-
 					preparedStatement.addBatch();
 					// execute insert SQL stetement
 					// preparedStatement .executeUpdate();
@@ -84,12 +78,9 @@ public class UserEdgeInputsPublicKeys extends DBInteraction implements User {
 			}
 			preparedStatement.executeBatch();
 			System.out.println(rows + " Records added");
-			// System.out.println(rows - uniqueKeys.size() +
-			// " Doublicate keys");
 		} catch (Exception e) {
 			e.printStackTrace();
 			System.out.println(e.getMessage());
-			// System.err.println("Error: " + e.getMessage());
 		}
 	}
 }

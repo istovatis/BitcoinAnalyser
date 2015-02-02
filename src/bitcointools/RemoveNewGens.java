@@ -27,17 +27,14 @@ public class RemoveNewGens extends DBInteraction {
 			br = new BufferedReader(new InputStreamReader(new DataInputStream(
 					new FileInputStream(DBInteraction.path + file))));
 		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-
 		try {
 			String removeRecord = "DELETE FROM " + table
 					+ " WHERE transaction_key = "
 					+ "?";
 			preparedStatement = connection.prepareStatement(removeRecord);
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
@@ -49,10 +46,8 @@ public class RemoveNewGens extends DBInteraction {
 					preparedStatement.setInt(1, Integer.valueOf(strLine));
 					preparedStatement.addBatch();
 				} catch (NumberFormatException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				} catch (SQLException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 				rows++;
@@ -65,11 +60,9 @@ public class RemoveNewGens extends DBInteraction {
 				preparedStatement.executeBatch();
 				System.out.println(rows+ "Transactions detected and removed from table "+table);
 			} catch (SQLException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
